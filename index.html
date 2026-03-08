@@ -1,0 +1,5401 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ParkMate Prime | Smart Parking Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+    </script>
+
+    <style>
+        /* DESIGN SYSTEM
+ */
+        :root {
+            --ink: #0d1117;
+            --ink2: #161b27;
+            --ink3: #1e2638;
+            --surface: #ffffff;
+            --surface2: #f6f8fc;
+            --surface3: #eef2fa;
+            --border: #e2e8f5;
+            --border2: #c8d4ee;
+            --text: #1a2035;
+            --text2: #4a5578;
+            --text3: #8893b0;
+            --primary: #1a56db;
+            --primary-soft: rgba(26, 86, 219, 0.08);
+            --primary-glow: rgba(26, 86, 219, 0.2);
+            --accent: #ff6b00;
+            --accent-soft: rgba(255, 107, 0, 0.08);
+            --green: #059669;
+            --green-soft: rgba(5, 150, 105, 0.1);
+            --red: #dc2626;
+            --red-soft: rgba(220, 38, 38, 0.15);
+            --yellow: #d97706;
+            --r: 12px;
+            --r2: 18px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.14), 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* CURSOR — desktop pointer only */
+        #cur,
+        #cur2 {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none !important;
+            touch-action: none !important;
+            z-index: 99998;
+            display: none;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            #cur {
+                display: block;
+                width: 8px;
+                height: 8px;
+                background: var(--primary);
+                transform: translate(-50%, -50%);
+                transition: transform 0.08s;
+            }
+
+            #cur2 {
+                display: block;
+                width: 30px;
+                height: 30px;
+                border: 1.5px solid var(--primary);
+                opacity: 0.4;
+                transform: translate(-50%, -50%);
+                transition: all 0.18s ease;
+            }
+
+            body:has(a:hover, button:hover) #cur2 {
+                transform: translate(-50%, -50%) scale(1.8);
+                opacity: 0.2;
+            }
+        }
+
+        /* PARTICLES  */
+        #pcv {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+
+        /* ═══════════════════════════════════
+           NAVBAR
+        ═══════════════════════════════════ */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: 64px;
+            padding: 0 28px;
+            background: rgba(255, 255, 255, 0.92);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--ink);
+            text-decoration: none;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 14px var(--primary-glow);
+            flex-shrink: 0;
+        }
+
+        .brand span {
+            color: var(--primary);
+        }
+
+        .nav-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-search {
+            display: flex;
+            align-items: center;
+            background: var(--surface3);
+            border: 1.5px solid var(--border2);
+            border-radius: 24px;
+            padding: 0 6px 0 14px;
+            width: 300px;
+            transition: width 0.25s ease, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-search:focus-within {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px var(--primary-soft);
+            width: 340px;
+        }
+
+        .nav-search input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: 'DM Sans';
+            font-size: 0.85rem;
+            color: var(--text);
+            outline: none;
+            padding: 8px 4px;
+        }
+
+        .nav-search input::placeholder {
+            color: var(--text3);
+        }
+
+        .nav-search button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .nav-search button:hover {
+            background: #1344b0;
+        }
+
+        .nav-tools {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--surface3);
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text2);
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-chip:hover {
+            background: var(--primary-soft);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .nav-chip.accent:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .nav-bal {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .nav-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            color: white;
+            font-family: 'Syne';
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2.5px solid white;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        /* ═══════════════════════════════════
+           HAMBURGER BUTTON
+        ═══════════════════════════════════ */
+        .hamburger-btn {
+            display: none;
+            /* hidden on desktop */
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            flex-shrink: 0;
+            margin-left: auto;
+            box-shadow: 0 4px 14px rgba(26, 86, 219, 0.35);
+            transition: background 0.2s, transform 0.15s;
+            padding: 0;
+            position: relative;
+        }
+
+        .hamburger-btn:active {
+            transform: scale(0.93);
+        }
+
+        /* Three bars */
+        .hb-bar {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+        }
+
+        /* X state */
+        .hamburger-btn.open .hb-bar:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .hamburger-btn.open .hb-bar:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .hamburger-btn.open .hb-bar:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* Also a search icon button on mobile */
+        .nav-mobile-search-btn {
+            display: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--surface3);
+            border: 1.5px solid var(--border2);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            color: var(--text2);
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .nav-mobile-search-btn:hover {
+            background: var(--primary-soft);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* ═══════════════════════════════════
+           MOBILE DRAWER OVERLAY
+        ═══════════════════════════════════ */
+        .mobile-drawer-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(13, 17, 23, 0.55);
+            z-index: 400;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.28s ease;
+        }
+
+        .mobile-drawer-backdrop.open {
+            display: block;
+            opacity: 1;
+        }
+
+        .mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(320px, 88vw);
+            height: 100dvh;
+            background: white;
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(110%);
+            transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -8px 0 48px rgba(0, 0, 0, 0.18);
+            overflow-y: auto;
+        }
+
+        .mobile-drawer.open {
+            transform: translateX(0);
+        }
+
+        .mobile-drawer-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .mobile-drawer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--ink);
+            text-decoration: none;
+        }
+
+        .mobile-drawer-brand span {
+            color: var(--primary);
+        }
+
+        .mobile-drawer-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--surface3);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: var(--text2);
+            transition: background 0.15s;
+            flex-shrink: 0;
+        }
+
+        .mobile-drawer-close:hover {
+            background: var(--border2);
+        }
+
+        .mobile-drawer-body {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+        }
+
+        .mob-drawer-section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text3);
+            padding: 10px 4px 6px;
+        }
+
+        .mob-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: background 0.15s, color 0.15s;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+
+        .mob-nav-link:hover,
+        .mob-nav-link:active {
+            background: var(--surface3);
+            color: var(--primary);
+        }
+
+        .mob-nav-link .mob-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .mob-nav-link.hot {
+            color: var(--accent);
+        }
+
+        .mob-nav-link.hot:hover {
+            background: var(--accent-soft);
+        }
+
+        .mobile-drawer-footer {
+            padding: 16px 20px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .mob-auth-primary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: white;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 6px 20px rgba(26, 86, 219, 0.3);
+            transition: opacity 0.2s, transform 0.15s;
+        }
+
+        .mob-auth-primary:active {
+            transform: scale(0.98);
+        }
+
+        .mob-auth-secondary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 13px;
+            border-radius: 12px;
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: 1.5px solid var(--border2);
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .mob-auth-secondary:active {
+            background: var(--surface3);
+        }
+
+        /* SUBNAV  */
+        .subnav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0 28px;
+            height: 42px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .subnav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .subnav a {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text2);
+            text-decoration: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            transition: 0.15s;
+        }
+
+        .subnav a:hover {
+            background: var(--surface3);
+            color: var(--text);
+        }
+
+        .subnav a.hot {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .subnav a.hot:hover {
+            background: var(--accent-soft);
+        }
+
+        /* MARQUEE  */
+        .marquee-wrap {
+            background: linear-gradient(90deg, var(--primary), #3b82f6, var(--primary));
+            padding: 7px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .marquee-wrap::before,
+        .marquee-wrap::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 60px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .marquee-wrap::before {
+            left: 0;
+            background: linear-gradient(90deg, var(--primary), transparent);
+        }
+
+        .marquee-wrap::after {
+            right: 0;
+            background: linear-gradient(-90deg, var(--primary), transparent);
+        }
+
+        .marquee-inner {
+            display: inline-flex;
+            gap: 48px;
+            white-space: nowrap;
+            animation: marquee 24s linear infinite;
+            font-family: 'JetBrains Mono';
+            font-size: 0.68rem;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .mq-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mq-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* CONTAINER  */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .page {
+            padding: 28px 0 60px;
+        }
+
+        /* AUTH PAGE ENHANCEMENTS */
+        .auth-hero {
+            min-height: calc(100vh - 104px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: 60px 24px;
+        }
+
+        .auth-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(26, 86, 219, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+                var(--surface2);
+            z-index: 0;
+        }
+
+        .auth-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 440px;
+            gap: 80px;
+            align-items: center;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .auth-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            border: 1px solid rgba(26, 86, 219, 0.2);
+            border-radius: 30px;
+            padding: 6px 14px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.7rem;
+            color: var(--primary);
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .auth-headline {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 3.5rem;
+            line-height: 1.1;
+            color: var(--ink);
+            letter-spacing: -1.5px;
+            margin-bottom: 20px;
+            animation: fadeUp 0.6s 0.1s ease both;
+            word-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .auth-headline span {
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-sub {
+            font-size: 1.1rem;
+            color: var(--text2);
+            line-height: 1.6;
+            margin-bottom: 32px;
+            animation: fadeUp 0.6s 0.2s ease both;
+        }
+
+        .auth-features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeUp 0.6s 0.3s ease both;
+        }
+
+        .auth-feat {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 0.95rem;
+            color: var(--text2);
+            font-weight: 500;
+        }
+
+        .feat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .auth-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 36px;
+            padding-top: 36px;
+            border-top: 1px solid var(--border);
+            animation: fadeUp 0.6s 0.4s ease both;
+        }
+
+        .auth-stat-num {
+            font-family: 'Syne';
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .auth-stat-lbl {
+            font-size: 0.75rem;
+            color: var(--text3);
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* ═══════════════════════════════════
+           BEAUTIFUL AUTH CARD — REDESIGNED
+        ═══════════════════════════════════ */
+        .auth-card {
+            background: white;
+            border-radius: 28px;
+            padding: 0;
+            box-shadow:
+                0 32px 80px rgba(26, 86, 219, 0.12),
+                0 8px 24px rgba(0, 0, 0, 0.06),
+                0 0 0 1px rgba(226, 232, 245, 0.8) inset;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            animation: fadeUp 0.6s 0.15s ease both;
+            width: 100%;
+        }
+
+        /* Top gradient accent bar */
+        .auth-card::before {
+            content: '';
+            display: block;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), #7c3aed, var(--accent));
+            border-radius: 0;
+        }
+
+        .auth-card-inner {
+            padding: 36px 40px 40px;
+        }
+
+        /* Card logo/icon */
+        .auth-card-logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(26, 86, 219, 0.3);
+        }
+
+        .auth-card-head {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .auth-card-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--ink);
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .auth-card-sub {
+            font-size: 0.85rem;
+            color: var(--text3);
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: var(--surface2);
+            border-radius: 14px;
+            padding: 5px;
+            margin-bottom: 28px;
+            border: 1px solid var(--border);
+            gap: 4px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 11px 8px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text3);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.1px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .auth-tab.on {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-input {
+            padding: 13px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            /* explicit px prevents iOS zoom */
+            color: var(--text);
+            background: var(--surface2);
+            outline: none;
+            transition: all 0.22s ease;
+            width: 100%;
+            -webkit-appearance: none;
+        }
+
+        .form-input::placeholder {
+            color: var(--text3);
+            font-size: 0.88rem;
+        }
+
+        .form-input:focus {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-soft);
+        }
+
+        /* Validation states */
+        .form-input.err {
+            border-color: var(--red) !important;
+            background: #fffafa;
+            box-shadow: 0 0 0 3px var(--red-soft) !important;
+        }
+
+        .form-input.ok {
+            border-color: var(--green) !important;
+            box-shadow: none !important;
+        }
+
+        .field-msg {
+            font-size: 0.72rem;
+            font-weight: 600;
+            margin-top: 3px;
+            display: none;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .field-msg.err {
+            display: flex;
+            color: var(--red);
+        }
+
+        .field-msg.ok {
+            display: flex;
+            color: var(--green);
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text3);
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+            pointer-events: none;
+        }
+
+        .input-wrap:focus-within .input-icon {
+            color: var(--primary);
+        }
+
+        .input-wrap .form-input {
+            padding-left: 44px;
+        }
+
+        .input-eye {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text3);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .input-eye:hover {
+            color: var(--text);
+        }
+
+        .btn-auth {
+            padding: 14px;
+            border-radius: 12px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.2px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            min-height: 48px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-primary-auth {
+            background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(26, 86, 219, 0.35);
+        }
+
+        .btn-primary-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(26, 86, 219, 0.42);
+        }
+
+        .btn-primary-auth:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(26, 86, 219, 0.3);
+        }
+
+        .btn-secondary-auth {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-secondary-auth:hover {
+            background: white;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text3);
+            font-size: 0.78rem;
+            font-weight: 500;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .oauth-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 13px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: white;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text2);
+            cursor: pointer;
+            transition: all 0.22s ease;
+            min-height: 48px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .oauth-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 4px 12px var(--primary-soft);
+            transform: translateY(-1px);
+        }
+
+        /* Password strength */
+        .strength-wrap {
+            margin-top: 6px;
+        }
+
+        .strength-bar {
+            height: 5px;
+            border-radius: 3px;
+            background: var(--surface3);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: all 0.4s ease;
+            width: 0%;
+        }
+
+        .strength-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+
+        .strength-label-text {
+            font-size: 0.68rem;
+            color: var(--text3);
+            font-weight: 600;
+            font-family: 'JetBrains Mono';
+        }
+
+        .strength-label-text.active {
+            color: var(--text2);
+        }
+
+        .auth-legal {
+            font-size: 0.75rem;
+            color: var(--text3);
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        .auth-legal a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .auth-legal a:hover {
+            text-decoration: underline;
+        }
+
+        /* SLIDER  */
+        .slider-section {
+            margin: 0 0 0;
+            background: var(--ink);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slider-wrap {
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            position: relative;
+            background: linear-gradient(135deg, var(--ink) 0%, var(--ink2) 100%);
+            min-height: 380px;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            display: flex;
+            animation: slideIn 0.6s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(1.02);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .slide-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .slide-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.25;
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+            width: 100%;
+        }
+
+        .slide-text {
+            max-width: 560px;
+        }
+
+        .slide-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .slide-badge i {
+            color: var(--accent);
+        }
+
+        .slide-title {
+            font-family: 'Syne';
+            font-weight: 800;
+            font-size: 2.6rem;
+            line-height: 1.1;
+            color: white;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+            word-wrap: break-word;
+        }
+
+        .slide-title span {
+            color: var(--accent);
+        }
+
+        .slide-desc {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.65);
+            line-height: 1.7;
+            margin-bottom: 24px;
+            max-width: 440px;
+        }
+
+        .slide-cta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-slide-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 22px;
+            border-radius: 8px;
+            font-family: 'Syne';
+            font-weight: 700;
+            font-size: 0.85rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-slide-primary:hover {
+            background: #e55a00;
+            transform: translateY(-1px);
+        }
+
+        .btn-slide-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 22px;
+            border-radius: 8px;
+            font-family: 'Syne';
+            font-weight: 600;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-slide-ghost:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .slide-visual {
+            flex-shrink: 0;
+        }
+
+        .slide-card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 24px;
+            min-width: 240px;
+            backdrop-filter: blur(10px);
+        }
+
+        .slider-nav {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        .snav-dot {
+            width: 22px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.25);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .snav-dot.on {
+            background: var(--accent);
+            width: 32px;
+        }
+
+        .slider-arrows {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 14px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .sarrow {
+            pointer-events: all;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+
+        .sarrow:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* DASHBOARD  */
+        .dash-section {
+            padding: 28px 0;
+        }
+
+        .section-title {
+            font-family: 'Syne';
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--ink);
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .section-sub {
+            font-size: 0.85rem;
+            color: var(--text3);
+            margin-bottom: 20px;
+        }
+
+        /* WELCOME HERO */
+        .welcome-hero {
+            background: linear-gradient(135deg, var(--ink) 0%, var(--ink2) 50%, #1a2550 100%);
+            border-radius: var(--r2);
+            padding: 28px 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .welcome-hero::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(26, 86, 219, 0.3), transparent 70%);
+        }
+
+        .welcome-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            right: 120px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 107, 0, 0.15), transparent 70%);
+        }
+
+        .wh-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .wh-title {
+            font-family: 'Syne';
+            font-weight: 800;
+            font-size: 1.7rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .wh-title span {
+            color: var(--accent);
+        }
+
+        .wh-sub {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .wh-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .wh-stat {
+            text-align: center;
+        }
+
+        .wh-num {
+            font-family: 'Syne';
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: white;
+        }
+
+        .wh-lbl {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* QUICK ACTIONS */
+        .qa-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .qa-card {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r2);
+            padding: 22px 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.25s;
+            box-shadow: var(--shadow-sm);
+            text-decoration: none;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qa-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+        }
+
+        .qa-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .qa-label {
+            font-family: 'Syne';
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+
+        .qa-desc {
+            font-size: 0.72rem;
+            color: var(--text3);
+        }
+
+        /* ACTIVE TICKET */
+        .ticket-card {
+            background: linear-gradient(135deg, #0d1117, #1a2035);
+            color: white;
+            border-radius: var(--r2);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 20px;
+        }
+
+        .ticket-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .ticket-holes {
+            position: absolute;
+            left: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ticket-holes::after {
+            content: '';
+            position: absolute;
+            right: -24px;
+            top: 50%;
+            transform: translateY(-50%) scaleY(-1);
+        }
+
+        .hole {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--surface2);
+        }
+
+        .ticket-content {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .ticket-qr {
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .ticket-qr:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.4);
+        }
+
+        .ticket-qr img {
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            display: block;
+        }
+
+        .ticket-fields {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            flex: 1;
+        }
+
+        .tf-label {
+            font-family: 'JetBrains Mono';
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .tf-val {
+            font-family: 'JetBrains Mono';
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .tf-val.highlight {
+            color: var(--accent);
+        }
+
+        .ticket-action {
+            margin-left: auto;
+        }
+
+        .btn-exit {
+            background: linear-gradient(135deg, var(--red), #ef4444);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-family: 'Syne';
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35);
+            white-space: nowrap;
+        }
+
+        .btn-exit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);
+        }
+
+        .ticket-timer {
+            font-family: 'JetBrains Mono';
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .timer-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulseGreen 1.4s ease-in-out infinite;
+        }
+
+        @keyframes pulseGreen {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* MAIN GRID */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+
+        /* CARDS */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--r2);
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .card-title {
+            font-family: 'Syne';
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--ink);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        /* FEATURE CARDS */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .feat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--r2);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: 0.25s;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .feat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            bottom: 0;
+            border-radius: 0 0 0 var(--r2);
+        }
+
+        .feat-card.blue::before {
+            background: var(--primary);
+        }
+
+        .feat-card.orange::before {
+            background: var(--accent);
+        }
+
+        .feat-card.green::before {
+            background: var(--green);
+        }
+
+        .feat-card.purple::before {
+            background: #7c3aed;
+        }
+
+        .feat-card:hover {
+            border-color: var(--border2);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        /* LIVE STATS BAR */
+        .live-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--r2);
+            padding: 16px 22px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulseGreen 1.4s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        .live-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 16px;
+            border-right: 1px solid var(--border);
+        }
+
+        .live-stat:last-of-type {
+            border-right: none;
+        }
+
+        .ls-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .ls-num {
+            font-family: 'Syne';
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--ink);
+        }
+
+        .ls-lbl {
+            font-size: 0.68rem;
+            color: var(--text3);
+        }
+
+        /* OCCUPANCY BAR */
+        .occ-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border);
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .occ-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--green), #22c55e);
+            transition: width 0.8s ease;
+        }
+
+        .occ-fill.warn {
+            background: linear-gradient(90deg, var(--yellow), #f59e0b);
+        }
+
+        .occ-fill.crit {
+            background: linear-gradient(90deg, var(--red), #ef4444);
+        }
+
+        /* PRICING TABLE */
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .price-table th {
+            font-size: 0.72rem;
+            color: var(--text3);
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .price-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.82rem;
+        }
+
+        .price-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .price-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+
+        /* RULES */
+        .rule-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rule-item:last-child {
+            border-bottom: none;
+        }
+
+        .rule-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        /* HISTORY MODAL */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: var(--r2);
+            padding: 0;
+            max-width: 520px;
+            width: 90%;
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.94) translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-head {
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-family: 'Syne';
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 2px;
+        }
+
+        .modal-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--surface3);
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.15s;
+        }
+
+        .modal-close:hover {
+            background: var(--border2);
+            color: var(--text);
+        }
+
+        .hist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hist-item:last-child {
+            border-bottom: none;
+        }
+
+        .hist-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 7px;
+            border-radius: 8px;
+            font-size: 0.62rem;
+            font-weight: 600;
+        }
+
+        .badge-active {
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--green);
+        }
+
+        .badge-paid {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+
+        .pass-card {
+            background: linear-gradient(135deg, var(--ink), var(--ink2));
+            color: white;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        /* CHAT */
+        .chat-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 500;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 24px var(--primary-glow);
+            transition: 0.25s;
+            animation: fabIn 0.4s 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes fabIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .chat-fab:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 32px var(--primary-glow);
+        }
+
+        .chat-fab .badge-ct {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--red);
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .chat-panel {
+            position: fixed;
+            bottom: 84px;
+            right: 24px;
+            z-index: 499;
+            width: 340px;
+            background: white;
+            border-radius: var(--r2);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: chatIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes chatIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px) scale(0.96);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .chat-head {
+            padding: 14px 16px;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .chat-head-title {
+            font-family: 'Syne';
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex: 1;
+        }
+
+        .chat-head-sub {
+            font-size: 0.62rem;
+            opacity: 0.75;
+            font-family: 'JetBrains Mono';
+        }
+
+        .chat-close {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-msgs {
+            flex: 1;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: var(--surface2);
+        }
+
+        .chat-msgs::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .chat-msgs::-webkit-scrollbar-thumb {
+            background: var(--border2);
+        }
+
+        .msg {
+            max-width: 82%;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            padding: 8px 12px;
+            border-radius: 12px;
+            animation: msgIn 0.25s ease;
+        }
+
+        @keyframes msgIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg.bot {
+            background: white;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 4px 12px 12px 12px;
+            align-self: flex-start;
+        }
+
+        .msg.user {
+            background: var(--primary);
+            color: white;
+            border-radius: 12px 4px 12px 12px;
+            align-self: flex-end;
+        }
+
+        .chat-chips {
+            display: flex;
+            gap: 6px;
+            padding: 8px 14px;
+            flex-wrap: wrap;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .chip {
+            padding: 5px 10px;
+            border: 1px solid var(--border2);
+            border-radius: 16px;
+            font-size: 0.7rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: 0.15s;
+            white-space: nowrap;
+        }
+
+        .chip:hover {
+            background: var(--primary-soft);
+            border-color: var(--primary);
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            padding: 10px 12px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1.5px solid var(--border2);
+            border-radius: 20px;
+            padding: 7px 14px;
+            font-family: 'DM Sans';
+            font-size: 0.82rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary);
+        }
+
+        .chat-send {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .chat-send:hover {
+            background: #1344b0;
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--ink);
+            color: rgba(255, 255, 255, 0.5);
+            padding: 40px 24px;
+            text-align: center;
+            font-size: 0.78rem;
+            line-height: 2;
+        }
+
+        footer a {
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            color: white;
+        }
+
+        .footer-brand {
+            font-family: 'Syne';
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .footer-brand span {
+            color: var(--accent);
+        }
+
+        /* ANIM */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .stagger>* {
+            opacity: 0;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .stagger>*:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .stagger>*:nth-child(2) {
+            animation-delay: 0.12s;
+        }
+
+        .stagger>*:nth-child(3) {
+            animation-delay: 0.19s;
+        }
+
+        .stagger>*:nth-child(4) {
+            animation-delay: 0.26s;
+        }
+
+        .stagger>*:nth-child(5) {
+            animation-delay: 0.33s;
+        }
+
+        .stagger>*:nth-child(6) {
+            animation-delay: 0.4s;
+        }
+
+        /* TOAST */
+        #toasts {
+            position: fixed;
+            top: 74px;
+            right: 16px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .toast {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-md);
+            min-width: 220px;
+            animation: toastIn 0.3s ease;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast.ok i {
+            color: var(--green);
+        }
+
+        .toast.err i {
+            color: var(--red);
+        }
+
+        .toast.inf i {
+            color: var(--primary);
+        }
+
+        /* WALLET METER */
+        .wallet-meter {
+            margin-top: 10px;
+        }
+
+        .meter-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--primary), #3b82f6);
+            transition: width 0.8s ease;
+        }
+
+        /* ============================================
+           COMPREHENSIVE RESPONSIVE SYSTEM
+           Mobile-first, beautiful on every screen
+           ============================================ */
+
+        /* --- TABLET: max 1100px --- */
+        @media (max-width: 1100px) {
+            .auth-grid {
+                gap: 50px;
+            }
+
+            .auth-headline {
+                font-size: 3rem;
+            }
+
+            .slide-title {
+                font-size: 2.2rem;
+            }
+
+            .container {
+                padding: 0 20px;
+            }
+        }
+
+        /* --- TABLET: max 960px --- */
+        @media (max-width: 960px) {
+            .navbar {
+                padding: 0 18px;
+                gap: 10px;
+            }
+
+            .nav-search {
+                width: 220px;
+            }
+
+            .nav-search:focus-within {
+                width: 250px;
+            }
+
+            .nav-chip span:not(.nav-bal) {
+                display: none;
+            }
+
+            .auth-grid {
+                grid-template-columns: 1fr;
+                max-width: 520px;
+                margin: 0 auto;
+                gap: 40px;
+            }
+
+            .auth-left {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .auth-eyebrow {
+                margin: 0 auto 16px;
+            }
+
+            .auth-features {
+                display: none;
+            }
+
+            .auth-stats {
+                display: none;
+            }
+
+            .auth-hero {
+                padding: 40px 16px;
+                min-height: auto;
+            }
+
+            .qa-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .dash-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .ticket-fields {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .slide-title {
+                font-size: 2rem;
+            }
+
+            .slide-content {
+                padding: 40px 20px;
+            }
+
+            .wh-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* --- MOBILE: max 768px — Show hamburger, hide desktop nav items --- */
+        @media (max-width: 768px) {
+            :root {
+                font-size: 14px;
+            }
+
+            .navbar {
+                padding: 0 16px;
+                height: 60px;
+                gap: 10px;
+                justify-content: flex-start;
+            }
+
+            /* Hide desktop elements */
+            .nav-center {
+                display: none;
+            }
+
+            .nav-tools {
+                display: none !important;
+            }
+
+            #navAuthBtn {
+                display: none !important;
+            }
+
+            /* Show mobile elements */
+            .hamburger-btn {
+                display: flex !important;
+            }
+
+            .nav-mobile-search-btn {
+                display: flex !important;
+            }
+
+            .brand {
+                font-size: 1.05rem;
+                flex: 1;
+            }
+
+            .brand-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+            }
+
+            /* SUBNAV */
+            .subnav {
+                padding: 0 14px;
+                height: 38px;
+                gap: 2px;
+            }
+
+            .subnav a {
+                font-size: 0.75rem;
+                padding: 5px 10px;
+            }
+
+            /* MARQUEE */
+            .marquee-inner {
+                font-size: 0.62rem;
+            }
+
+            /* HERO SLIDER */
+            .slide {
+                min-height: 320px;
+            }
+
+            .slide-content {
+                padding: 32px 16px 48px;
+                gap: 20px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .slide-title {
+                font-size: 1.8rem;
+                letter-spacing: -0.5px;
+            }
+
+            .slide-desc {
+                font-size: 0.88rem;
+            }
+
+            .slide-visual {
+                display: none;
+            }
+
+            .sarrow {
+                width: 32px;
+                height: 32px;
+                font-size: 0.75rem;
+            }
+
+            .slider-arrows {
+                padding: 0 10px;
+            }
+
+            /* AUTH */
+            .auth-hero {
+                padding: 24px 14px;
+            }
+
+            .auth-grid {
+                max-width: 100%;
+            }
+
+            .auth-headline {
+                font-size: 2.2rem;
+            }
+
+            /* DASHBOARD */
+            .container {
+                padding: 0 14px;
+            }
+
+            .page {
+                padding: 20px 0 48px;
+            }
+
+            .welcome-hero {
+                padding: 20px;
+                border-radius: var(--r);
+            }
+
+            .wh-content {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .wh-title {
+                font-size: 1.3rem;
+            }
+
+            .wh-stats {
+                width: 100%;
+                justify-content: space-between;
+                gap: 12px;
+            }
+
+            .wh-num {
+                font-size: 1.2rem;
+            }
+
+            .live-bar {
+                padding: 12px 14px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .live-stat {
+                padding: 0 10px;
+            }
+
+            .live-stat:not(:last-of-type) {
+                border-right: 1px solid var(--border);
+            }
+
+            #lsTime {
+                width: 100%;
+                font-size: 0.6rem;
+            }
+
+            .qa-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .qa-card {
+                padding: 16px 12px;
+                border-radius: var(--r);
+            }
+
+            .qa-icon {
+                width: 42px;
+                height: 42px;
+            }
+
+            .qa-label {
+                font-size: 0.78rem;
+            }
+
+            .qa-desc {
+                font-size: 0.68rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .feat-card {
+                padding: 16px;
+            }
+
+            .dash-grid {
+                gap: 14px;
+            }
+
+            .card {
+                padding: 16px;
+                border-radius: var(--r);
+            }
+
+            .ticket-card {
+                padding: 18px 16px;
+                border-radius: var(--r);
+            }
+
+            .ticket-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .ticket-fields {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .ticket-qr {
+                display: none;
+            }
+
+            .ticket-action {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .btn-exit {
+                padding: 10px 16px;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+
+            .price-table {
+                font-size: 0.75rem;
+            }
+
+            .price-table th,
+            .price-table td {
+                padding: 8px 6px;
+            }
+
+            .price-table th:nth-child(3),
+            .price-table td:nth-child(3) {
+                display: none;
+            }
+
+            .modal-box {
+                width: 95%;
+                max-height: 90vh;
+                border-radius: var(--r);
+            }
+
+            .modal-head,
+            .modal-body {
+                padding: 16px 18px;
+            }
+
+            .chat-fab {
+                width: 48px;
+                height: 48px;
+                bottom: 20px;
+                right: 16px;
+                font-size: 1rem;
+            }
+
+            .chat-panel {
+                width: calc(100vw - 32px);
+                right: 16px;
+                bottom: 76px;
+                border-radius: var(--r);
+            }
+
+            .chat-msgs {
+                max-height: 240px;
+            }
+
+            footer {
+                padding: 32px 16px;
+            }
+
+            footer a {
+                margin: 0 6px;
+                font-size: 0.72rem;
+            }
+
+            .footer-brand {
+                font-size: 1rem;
+            }
+
+            .section-sub {
+                font-size: 0.8rem;
+            }
+
+            .auth-stat-num {
+                font-size: 1.4rem;
+            }
+
+            .auth-stat-lbl {
+                font-size: 0.65rem;
+            }
+
+            .auth-stats {
+                gap: 14px;
+                flex-wrap: wrap;
+            }
+
+            .form-input {
+                font-size: 16px;
+                padding: 13px 14px;
+            }
+
+            .input-wrap .form-input {
+                padding-left: 42px;
+            }
+
+            .dash-section {
+                padding: 20px 0;
+            }
+        }
+
+        /* --- MOBILE SMALL: max 480px --- */
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 0 12px;
+                height: 52px;
+            }
+
+            .brand {
+                font-size: 0.95rem;
+            }
+
+            .nav-tools {
+                gap: 3px;
+            }
+
+            /* Hide less important nav chips on very small screens */
+            .nav-chip:not(:has(.nav-bal)):not([onclick*="logout"]):not([onclick*="History"]) {
+                display: none;
+            }
+
+            .slide {
+                min-height: 280px;
+            }
+
+            .slide-title {
+                font-size: 1.5rem;
+            }
+
+            .slide-badge {
+                font-size: 0.58rem;
+            }
+
+            .slide-desc {
+                font-size: 0.82rem;
+                -webkit-line-clamp: 3;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .btn-slide-primary,
+            .btn-slide-ghost {
+                padding: 9px 16px;
+                font-size: 0.78rem;
+            }
+
+            .auth-headline {
+                font-size: 2rem;
+                /* Adjusted for very small screens */
+            }
+
+            .auth-card {
+                padding: 24px 16px;
+            }
+
+            .welcome-hero {
+                padding: 16px 16px;
+            }
+
+            .wh-title {
+                font-size: 1.15rem;
+            }
+
+            .wh-stats {
+                gap: 8px;
+            }
+
+            .wh-num {
+                font-size: 1.1rem;
+            }
+
+            .wh-lbl {
+                font-size: 0.58rem;
+            }
+
+            .qa-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .qa-card {
+                padding: 14px 10px;
+            }
+
+            .qa-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+            }
+
+            .ticket-fields {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .live-stat {
+                padding: 0 8px;
+            }
+
+            .ls-icon {
+                width: 26px;
+                height: 26px;
+                font-size: 0.65rem;
+            }
+
+            .ls-num {
+                font-size: 0.9rem;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+            }
+
+            .card-title {
+                font-size: 0.88rem;
+            }
+
+            /* PRICING TABLE - further simplify */
+            .price-table th:nth-child(4),
+            .price-table td:nth-child(4) {
+                display: none;
+            }
+
+            footer a {
+                display: inline-block;
+                margin: 2px 5px;
+            }
+        }
+
+        /* --- MOBILE XS: max 360px --- */
+        @media (max-width: 360px) {
+            .slide-title {
+                font-size: 1.3rem;
+            }
+
+            .qa-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 7px;
+            }
+
+            .qa-card {
+                padding: 12px 8px;
+            }
+
+            .wh-stats {
+                grid-template-columns: repeat(2, 1fr);
+                display: grid;
+            }
+
+            .auth-card {
+                padding: 20px 14px;
+            }
+        }
+
+        /* --- ULTRA WIDE: min 1400px --- */
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1340px;
+            }
+
+            .auth-grid {
+                max-width: 1200px;
+                gap: 100px;
+            }
+
+            .auth-headline {
+                font-size: 4rem;
+            }
+
+            .slide-title {
+                font-size: 3rem;
+            }
+
+            .slide-content {
+                padding: 60px 32px;
+            }
+        }
+
+        /* --- LANDSCAPE PHONE --- */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .slide {
+                min-height: 220px;
+            }
+
+            .slide-content {
+                padding: 24px 16px 36px;
+            }
+
+            .slide-title {
+                font-size: 1.6rem;
+            }
+
+            .auth-hero {
+                padding: 20px 16px;
+            }
+
+            .welcome-hero {
+                padding: 16px 18px;
+            }
+        }
+
+        /* --- TOUCH IMPROVEMENTS --- */
+        @media (hover: none) and (pointer: coarse) {
+
+            .qa-card:hover,
+            .feat-card:hover,
+            .card:hover {
+                transform: none;
+                box-shadow: var(--shadow-sm);
+            }
+
+            .btn-primary-auth:hover,
+            .btn-slide-primary:hover {
+                transform: none;
+            }
+
+            /* Bigger tap targets */
+            .subnav a {
+                padding: 8px 12px;
+                min-height: 38px;
+                display: flex;
+                align-items: center;
+            }
+
+            .nav-chip {
+                min-height: 36px;
+            }
+
+            .auth-tab {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .chip {
+                padding: 7px 12px;
+                min-height: 36px;
+            }
+
+            /* Disable custom cursor on touch */
+            #cur,
+            #cur2 {
+                display: none !important;
+            }
+        }
+
+        /* --- MOBILE SEARCH OVERLAY --- */
+        .mobile-search-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9000;
+            background: white;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.2s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .mobile-search-overlay.open {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mobile-search-overlay input {
+            flex: 1;
+            border: 1.5px solid var(--border2);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-family: 'DM Sans';
+            font-size: 0.88rem;
+            outline: none;
+        }
+
+        .mobile-search-overlay input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-soft);
+        }
+
+        .mobile-search-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--surface3);
+            border: none;
+            cursor: pointer;
+            color: var(--text3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- IMPROVED TICKET LAYOUT --- */
+        @media (max-width: 768px) {
+            .ticket-content {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .ticket-holes {
+                display: none;
+            }
+        }
+
+        /* --- SMOOTH SCROLL INDICATOR --- */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            z-index: 9999;
+            transition: width 0.1s;
+            pointer-events: none;
+        }
+
+        /* --- TICKET RESPONSIVE FIXES --- */
+        .ticket-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .ticket-fields {
+            flex: 1;
+            min-width: 0;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+
+        .ticket-action {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        /* --- AUTH CARD FULL WIDTH ON MOBILE --- */
+        @media (max-width: 480px) {
+            .auth-grid {
+                max-width: 100%;
+            }
+
+            #loginSection {
+                padding: 40px 16px !important;
+            }
+        }
+
+        /* --- LIVE BAR RESPONSIVE --- */
+        @media (max-width: 520px) {
+            .live-bar {
+                display: grid;
+                grid-template-columns: auto 1fr 1fr 1fr 1fr;
+                align-items: center;
+                gap: 6px 0;
+                padding: 12px;
+            }
+
+            .live-bar>span {
+                grid-column: 2 / -1;
+                font-size: 0.58rem;
+            }
+
+            .live-stat {
+                padding: 4px 8px;
+                border-right: none;
+                border-bottom: none;
+            }
+
+            #lsTime {
+                grid-column: 1 / -1;
+                text-align: center;
+                padding-top: 4px;
+                border-top: 1px solid var(--border);
+                margin-top: 4px;
+            }
+        }
+
+        /* --- SECTION PADDING RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .dash-section {
+                padding: 20px 0;
+            }
+
+            [id="ticketBanner"] .container {
+                padding: 0 14px;
+            }
+        }
+
+        @keyframes ultraPulseIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .ultra-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ultra-signal {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .ultra-lab {
+                display: none;
+            }
+        }
+
+        /* --- RESPONSIVE TYPOGRAPHY SCALE --- */
+        @media (max-width: 768px) {
+            .section-sub {
+                font-size: 0.8rem;
+            }
+
+            .auth-stat-num {
+                font-size: 1.4rem;
+            }
+
+            .auth-stat-lbl {
+                font-size: 0.65rem;
+            }
+
+            .auth-stats {
+                gap: 14px;
+                flex-wrap: wrap;
+            }
+        }
+
+        /* --- IMPROVED FORM INPUTS ON MOBILE --- */
+        @media (max-width: 768px) {
+            .form-input {
+                font-size: 16px;
+                /* Prevents iOS zoom */
+                padding: 13px 14px;
+            }
+
+            .input-wrap .form-input {
+                padding-left: 42px;
+            }
+        }
+
+        /* --- AUTH CARD RESPONSIVE FIXES for new structure --- */
+        @media (max-width: 960px) {
+            .auth-card-inner {
+                padding: 28px 28px 32px;
+            }
+
+            .auth-card-title {
+                font-size: 1.35rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .auth-card-inner {
+                padding: 24px 20px 28px;
+            }
+
+            .auth-card-logo {
+                width: 46px;
+                height: 46px;
+                font-size: 1.1rem;
+                margin-bottom: 16px;
+            }
+
+            .auth-card-title {
+                font-size: 1.25rem;
+            }
+
+            .auth-card-sub {
+                font-size: 0.8rem;
+            }
+
+            .auth-card-head {
+                margin-bottom: 22px;
+            }
+
+            .auth-tabs {
+                margin-bottom: 22px;
+            }
+
+            .auth-form {
+                gap: 15px;
+            }
+
+            .btn-auth {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                border-radius: 22px;
+            }
+
+            .auth-card-inner {
+                padding: 20px 16px 24px;
+            }
+
+            .auth-card-title {
+                font-size: 1.15rem;
+            }
+
+            .auth-form {
+                gap: 13px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .auth-card-inner {
+                padding: 16px 14px 20px;
+            }
+        }
+
+        /* Touch improvements for auth */
+        @media (hover: none) and (pointer: coarse) {
+            .btn-primary-auth:hover {
+                transform: none;
+            }
+
+            .btn-primary-auth:active {
+                transform: scale(0.98);
+            }
+
+            .oauth-btn:hover {
+                transform: none;
+            }
+
+            .oauth-btn:active {
+                transform: scale(0.98);
+            }
+
+            .auth-tab {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* --- SAFE AREA for notched phones --- */
+        @supports (padding: max(0px)) {
+            .navbar {
+                padding-left: max(18px, env(safe-area-inset-left));
+                padding-right: max(18px, env(safe-area-inset-right));
+            }
+
+            footer {
+                padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 24px));
+            }
+
+            .chat-fab {
+                bottom: max(20px, calc(env(safe-area-inset-bottom) + 16px));
+                right: max(16px, env(safe-area-inset-right));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SCROLL PROGRESS -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+    <!-- CURSOR -->
+    <div id="cur"></div>
+    <div id="cur2"></div>
+    <!-- PARTICLES -->
+    <canvas id="pcv"></canvas>
+    <!-- TOASTS -->
+    <div id="toasts"></div>
+    <!-- MOBILE SEARCH OVERLAY -->
+    <div class="mobile-search-overlay" id="mobileSearchOverlay">
+        <input type="text" placeholder="Search slot ID, zone, vehicle…" id="mobileSearchInput"
+            oninput="onMobileSearch()">
+        <button class="mobile-search-close" onclick="closeMobileSearch()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!--  NAVBAR  -->
+    <nav class="navbar">
+        <a href="#" class="brand">
+            <div class="brand-icon"><i class="fas fa-p"></i></div>
+            ParkMate <span>Prime</span>
+        </a>
+
+        <div class="nav-center">
+            <div class="nav-search" id="navSearch" style="display:none;">
+                <input type="text" placeholder="Search slot ID, zone, vehicle number" id="globalSearch"
+                    oninput="onSearch()">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <div class="nav-tools" id="navTools" style="display:none;">
+            <div class="nav-chip" onclick="openHistoryModal()">
+                <i class="fas fa-clock"></i><span id="navUserName">Member</span>
+            </div>
+            <div class="nav-chip">
+                <i class="fas fa-wallet"></i><span class="nav-bal" id="navBal">₹0</span>
+            </div>
+            <div class="nav-chip accent" onclick="handleWallet()">
+                <i class="fas fa-plus-circle"></i><span>Add Money</span>
+            </div>
+            <div class="nav-avatar" id="navAvatar" onclick="openHistoryModal()">U</div>
+            <div class="nav-chip" onclick="logout()" style="color:var(--red);">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+        </div>
+
+        <!-- Desktop auth buttons (hidden on mobile) -->
+        <div id="navAuthBtn" style="display:flex;gap:8px;flex-shrink:0;">
+            <button class="btn-auth btn-secondary-auth" style="padding:8px 18px;font-size:0.8rem;border-radius:10px;"
+                onclick="scrollToAuth()">Sign In</button>
+            <button class="btn-auth btn-primary-auth" style="padding:8px 18px;font-size:0.8rem;border-radius:10px;"
+                onclick="scrollToAuth()">Get Started</button>
+        </div>
+
+        <!-- Mobile: search icon -->
+        <button class="nav-mobile-search-btn" id="mobileSearchBtn" onclick="openMobileSearch()" aria-label="Search">
+            <i class="fas fa-search"></i>
+        </button>
+
+        <!-- HAMBURGER BUTTON — always visible on mobile -->
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="openDrawer()" aria-label="Open menu">
+            <span class="hb-bar"></span>
+            <span class="hb-bar"></span>
+            <span class="hb-bar"></span>
+        </button>
+    </nav>
+
+    <!-- MOBILE DRAWER BACKDROP -->
+    <div class="mobile-drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+    <!-- MOBILE DRAWER -->
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="mobile-drawer-head">
+            <a href="#" class="mobile-drawer-brand">
+                <div class="brand-icon" style="width:30px;height:30px;font-size:0.8rem;"><i class="fas fa-p"></i></div>
+                ParkMate <span>Prime</span>
+            </a>
+            <button class="mobile-drawer-close" onclick="closeDrawer()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="mobile-drawer-body">
+            <!-- Nav links — always visible -->
+            <div class="mob-drawer-section-label">Navigation</div>
+            <a href="parking.html" class="mob-nav-link" onclick="closeDrawer()">
+                <span class="mob-icon" style="background:rgba(26,86,219,0.1);color:var(--primary);"><i
+                        class="fas fa-map-marked-alt"></i></span>
+                Find a Spot
+            </a>
+            <a href="parking.html" class="mob-nav-link" onclick="closeDrawer()">
+                <span class="mob-icon" style="background:rgba(26,86,219,0.08);color:var(--primary);"><i
+                        class="fas fa-layer-group"></i></span>
+                All Zones (A, B, C)
+            </a>
+            <a href="parkmate-ai.html" class="mob-nav-link" onclick="closeDrawer()">
+                <span class="mob-icon" style="background:rgba(124,58,237,0.1);color:#7c3aed;"><i
+                        class="fas fa-robot"></i></span>
+                ParkMate AI
+            </a>
+            <a href="admin.html" class="mob-nav-link hot" onclick="closeDrawer()">
+                <span class="mob-icon" style="background:rgba(255,107,0,0.1);color:var(--accent);"><i
+                        class="fas fa-chart-line"></i></span>
+                Live Revenue
+            </a>
+
+            <!-- User section — only when logged in -->
+            <div id="drawerUserSection" style="display:none;">
+                <div class="mob-drawer-section-label" style="margin-top:8px;">My Account</div>
+                <button class="mob-nav-link" onclick="closeDrawer();openHistoryModal();">
+                    <span class="mob-icon" style="background:rgba(255,107,0,0.1);color:var(--accent);"><i
+                            class="fas fa-clock-rotate-left"></i></span>
+                    My Bookings
+                </button>
+                <button class="mob-nav-link" onclick="closeDrawer();handleWallet();">
+                    <span class="mob-icon" style="background:rgba(5,150,105,0.1);color:var(--green);"><i
+                            class="fas fa-wallet"></i></span>
+                    <span>My Wallet &nbsp;<strong id="drawerBal" style="color:var(--green);"></strong></span>
+                </button>
+                <button class="mob-nav-link" onclick="closeDrawer();logout();" style="color:var(--red);">
+                    <span class="mob-icon" style="background:rgba(220,38,38,0.08);color:var(--red);"><i
+                            class="fas fa-sign-out-alt"></i></span>
+                    Sign Out
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer: Auth buttons — only when NOT logged in -->
+        <div class="mobile-drawer-footer" id="drawerAuthFooter">
+            <button class="mob-auth-primary" onclick="closeDrawer();scrollToAuth();toggleAuth('signup');">
+                <i class="fas fa-user-plus"></i> Get Started — Free
+            </button>
+            <button class="mob-auth-secondary" onclick="logout();">
+                <i class="fas fa-arrow-right-to-bracket"></i> Sign Out
+            </button>
+        </div>
+    </div>
+
+    <!--  SUBNAV  -->
+    <div class="subnav" id="subNav" style="display:none;">
+        <a href="parking.html"><i class="fas fa-map-marked-alt" style="margin-right:5px;"></i>Find Spot</a>
+        <a href="parking.html">Zone A</a>
+        <a href="parking.html">Zone B</a>
+        <a href="parking.html">Zone C</a>
+        <a href="#" onclick="openHistoryModal()">My Bookings</a>
+        <a href="parkmate-ai.html"><i class="fas fa-robot" style="margin-right:5px;"></i>ParkMate AI</a>
+        <a href="admin.html" class="hot"><i class="fas fa-chart-line" style="margin-right:5px;"></i>Live Revenue
+            Tracking</a>
+    </div>
+
+    <!--  MARQUEE  -->
+    <div class="marquee-wrap">
+        <div class="marquee-inner" id="marqueeInner">
+            <span class="mq-item">
+                <div class="mq-dot"></div>ZONE A: 340 SLOTS AVAILABLE
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>ELECTRIC CHARGING BAYS OPEN
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>HAPPY HOURS: 50% OFF 2PM5PM
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>ADD MONEY TO WALLET FOR SEAMLESS EXIT
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>NEW: SEASON PASS AT 1999/MONTH
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>AI SMART ROUTING LIVE
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>ZONE A: 340 SLOTS AVAILABLE
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>ELECTRIC CHARGING BAYS OPEN
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>HAPPY HOURS: 50% OFF 2PM5PM
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>ADD MONEY TO WALLET FOR SEAMLESS EXIT
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>NEW: SEASON PASS AT 1999/MONTH
+            </span>
+            <span class="mq-item">
+                <div class="mq-dot"></div>AI SMART ROUTING LIVE
+            </span>
+        </div>
+    </div>
+
+    <!--  HERO SLIDER  -->
+    <div class="slider-section" id="heroSlider">
+        <div class="slider-wrap">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <div class="slide-bg"><img
+                        src="https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=1600&q=80" class="slide-img"
+                        alt="parking"></div>
+                <div class="slide-content">
+                    <div class="slide-text">
+                        <div class="slide-badge"><i class="fas fa-bolt"></i>SMART PARKING PLATFORM</div>
+                        <div class="slide-title">Park Smarter,<br>Exit <span>Faster</span></div>
+                        <div class="slide-desc">AI-powered slot allocation gets you the perfect spot in under 30
+                            seconds. Real-time availability, seamless payment.</div>
+                    </div>
+                    <div class="slide-visual">
+                        <div class="slide-card">
+                            <div
+                                style="font-family:'JetBrains Mono';font-size:0.6rem;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:10px;">
+                                LIVE OCCUPANCY</div>
+                            <div style="font-family:'Syne';font-weight:800;font-size:2rem;color:#22c55e;" id="slideOcc">
+                                42%</div>
+                            <div
+                                style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin:8px 0;overflow:hidden;">
+                                <div
+                                    style="width:42%;height:100%;background:linear-gradient(90deg,#22c55e,#86efac);border-radius:3px;">
+                                </div>
+                            </div>
+                            <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);">549 / 1300 slots taken</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 2 -->
+            <div class="slide">
+                <div class="slide-bg"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80"
+                        class="slide-img" alt="ev"></div>
+                <div class="slide-content">
+                    <div class="slide-text">
+                        <div class="slide-badge"><i class="fas fa-leaf"></i>GREEN INITIATIVE</div>
+                        <div class="slide-title">EV Charging<br><span>Bays Open</span></div>
+                        <div class="slide-desc">24 dedicated electric vehicle charging stations across all zones.
+                            Fast-charge your car while you shop or work.</div>
+                    </div>
+                    <div class="slide-visual">
+                        <div class="slide-card" style="text-align:center;">
+                            <div style="font-size:2.5rem;margin-bottom:8px;"></div>
+                            <div style="font-family:'Syne';font-size:1rem;color:white;font-weight:700;">24 Charging Bays
+                            </div>
+                            <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:4px;">Fast Charge
+                                AC/DC</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 3 -->
+            <div class="slide">
+                <div class="slide-bg"><img
+                        src="https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?w=1600&q=80" class="slide-img"
+                        alt="ai"></div>
+                <div class="slide-content">
+                    <div class="slide-text">
+                        <div class="slide-badge"><i class="fas fa-robot"></i>AI ENGINE</div>
+                        <div class="slide-title">ParkMind AI<br><span>Guides You</span></div>
+                        <div class="slide-desc">Our neural algorithm predicts demand spikes, recommends optimal slots,
+                            and can even forecast when the parking will fill up.</div>
+                    </div>
+                    <div class="slide-visual">
+                        <div class="slide-card">
+                            <div
+                                style="font-family:'JetBrains Mono';font-size:0.6rem;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:10px;">
+                                AI DEMAND SCORE</div>
+                            <div style="font-family:'Syne';font-weight:800;font-size:2rem;color:#f59e0b;">MODERATE</div>
+                            <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-top:6px;">Book within 15
+                                mins for best slots</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 4 -->
+            <div class="slide">
+                <div class="slide-bg"><img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1600&q=80"
+                        class="slide-img" alt="pay"></div>
+                <div class="slide-content">
+                    <div class="slide-text">
+                        <div class="slide-badge"><i class="fas fa-shield-halved"></i>SECURE PAYMENTS</div>
+                        <div class="slide-title">One Tap,<br><span>Zero Queues</span></div>
+                        <div class="slide-desc">Wallet-based auto-debit at exit. No fumbling at barriers. Just drive out
+                            and we handle the rest.</div>
+                    </div>
+                    <div class="slide-visual">
+                        <div class="slide-card" style="text-align:center;">
+                            <div style="font-size:2rem;margin-bottom:6px;"></div>
+                            <div style="font-family:'Syne';font-size:1rem;color:white;font-weight:700;">256-bit
+                                Encrypted</div>
+                            <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:4px;">Bank-grade
+                                security</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="slider-arrows">
+                <button class="sarrow" onclick="slideMove(-1)"><i class="fas fa-chevron-left"></i></button>
+                <button class="sarrow" onclick="slideMove(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="slider-nav" id="sliderNav"></div>
+        </div>
+    </div>
+
+    <!--  AUTH SECTION  -->
+    <div id="loginSection" class="auth-hero">
+        <div class="auth-bg"></div>
+        <div class="auth-grid" id="authAnchor">
+            <div class="auth-left">
+                <div class="auth-eyebrow"><i class="fas fa-bolt"></i> TRUSTED BY 50,000+ DRIVERS</div>
+                <div class="auth-headline">The smarter way to <span>park in the city</span></div>
+                <div class="auth-sub">Real-time availability, AI-powered routing, and seamless wallet payments all in
+                    one platform.</div>
+                <div class="auth-features">
+                    <div class="auth-feat">
+                        <div class="feat-icon" style="background:rgba(26,86,219,0.1);color:var(--primary);"><i
+                                class="fas fa-route"></i></div><span>Instant slot booking with AI allocation</span>
+                    </div>
+                    <div class="auth-feat">
+                        <div class="feat-icon" style="background:rgba(5,150,105,0.1);color:var(--green);"><i
+                                class="fas fa-wallet"></i></div><span>Auto-debit wallet, no queues at exit</span>
+                    </div>
+                    <div class="auth-feat">
+                        <div class="feat-icon" style="background:rgba(255,107,0,0.1);color:var(--accent);"><i
+                                class="fas fa-shield-halved"></i></div><span>Bank-grade security & encrypted data</span>
+                    </div>
+                    <div class="auth-feat">
+                        <div class="feat-icon" style="background:rgba(124,58,237,0.1);color:#7c3aed;"><i
+                                class="fas fa-robot"></i></div><span>ParkMind AI chatbot for smart guidance</span>
+                    </div>
+                </div>
+                <div class="auth-stats">
+                    <div class="auth-stat">
+                        <div class="auth-stat-num">1300+</div>
+                        <div class="auth-stat-lbl">TOTAL SLOTS</div>
+                    </div>
+                    <div class="auth-stat">
+                        <div class="auth-stat-num">24/7</div>
+                        <div class="auth-stat-lbl">AVAILABILITY</div>
+                    </div>
+                    <div class="auth-stat">
+                        <div class="auth-stat-num">30s</div>
+                        <div class="auth-stat-lbl">BOOKING TIME</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-card" id="authCard">
+                <div class="auth-card-inner">
+                    <div class="auth-card-logo"><i class="fas fa-p"></i></div>
+                    <div class="auth-card-head">
+                        <div class="auth-card-title" id="cardTitle">Welcome Back</div>
+                        <div class="auth-card-sub" id="cardSub">Sign in to your ParkMate Prime account</div>
+                    </div>
+
+                    <div class="auth-tabs">
+                        <div class="auth-tab on" id="tabLogin" onclick="toggleAuth('login')">Sign In</div>
+                        <div class="auth-tab" id="tabSignup" onclick="toggleAuth('signup')">Create Account</div>
+                    </div>
+
+                    <!-- LOGIN FORM -->
+                    <form id="loginForm" class="auth-form" onsubmit="doLogin(event)" autocomplete="off" novalidate>
+                        <!-- Honeypot to confuse browser autofill -->
+                        <input type="text" name="username_fake" style="display:none;" tabindex="-1" autocomplete="off">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-envelope"
+                                    style="font-size:0.7rem;color:var(--primary);"></i> Email Address</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com"
+                                    autocomplete="new-password" autocorrect="off" autocapitalize="off"
+                                    spellcheck="false">
+                            </div>
+                            <div class="field-msg" id="loginEmailMsg"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-lock"
+                                    style="font-size:0.7rem;color:var(--primary);"></i> Password</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" id="loginPass" class="form-input"
+                                    placeholder="Enter your password" autocomplete="new-password">
+                                <i class="fas fa-eye input-eye" onclick="toggleEye('loginPass',this)"></i>
+                            </div>
+                            <div class="field-msg" id="loginPassMsg"></div>
+                        </div>
+                        <button type="submit" class="btn-auth btn-primary-auth"><i
+                                class="fas fa-arrow-right-to-bracket"></i>Sign In</button>
+
+                        <div class="divider">or continue with</div>
+
+                        <button type="button" class="oauth-btn" onclick="demoLogin()">
+                            <i class="fas fa-user-astronaut" style="color:var(--primary); font-size: 1.05rem;"></i>
+                            Quick Demo Access
+                        </button>
+
+                        <div class="auth-legal">By signing in you agree to our <a href="policies.html">Terms</a> and <a
+                                href="privacy.html">Privacy Policy</a>.</div>
+                    </form>
+
+                    <!-- SIGNUP FORM -->
+                    <form id="signupForm" class="auth-form" style="display:none;" onsubmit="doSignup(event)"
+                        autocomplete="off" novalidate>
+                        <!-- Honeypot to confuse browser autofill -->
+                        <input type="text" name="email_fake" style="display:none;" tabindex="-1" autocomplete="off">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-user"
+                                    style="font-size:0.7rem;color:var(--primary);"></i> Full Name</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" id="regName" class="form-input" placeholder="Your full name"
+                                    autocomplete="new-password" autocorrect="off" autocapitalize="words"
+                                    spellcheck="false">
+                            </div>
+                            <div class="field-msg" id="regNameMsg"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-envelope"
+                                    style="font-size:0.7rem;color:var(--primary);"></i> Email Address</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input type="email" id="regEmail" class="form-input" placeholder="you@example.com"
+                                    autocomplete="new-password" autocorrect="off" autocapitalize="off"
+                                    spellcheck="false">
+                            </div>
+                            <div class="field-msg" id="regEmailMsg"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-lock"
+                                    style="font-size:0.7rem;color:var(--primary);"></i> Password</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" id="regPass" class="form-input"
+                                    placeholder="Create a strong password" oninput="checkStrength(this.value)"
+                                    autocomplete="new-password">
+                                <i class="fas fa-eye input-eye" onclick="toggleEye('regPass',this)"></i>
+                            </div>
+                            <div class="strength-wrap">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strengthFill"></div>
+                                </div>
+                                <div class="strength-labels">
+                                    <span class="strength-label-text" id="strengthLabel">Min 8 characters</span>
+                                    <span class="strength-label-text" id="strengthScore"></span>
+                                </div>
+                            </div>
+                            <div class="field-msg" id="regPassMsg"></div>
+                        </div>
+                        <button type="submit" class="btn-auth btn-primary-auth"><i class="fas fa-user-plus"></i>Create
+                            Account</button>
+                        <div class="auth-legal">By creating an account you agree to our <a
+                                href="policies.html">Terms</a>
+                            and <a href="privacy.html">Privacy Policy</a>.</div>
+                    </form>
+                </div><!-- /auth-card-inner -->
+            </div>
+        </div>
+    </div>
+
+    <!--  DASHBOARD  -->
+    <div id="dashSection" style="display:none;">
+
+        <!-- Active Ticket -->
+        <div id="ticketBanner" style="background:var(--ink);padding:16px 0;display:none;">
+            <div class="container">
+                <div class="ticket-card">
+                    <div class="ticket-holes">
+                        <div class="hole"></div>
+                        <div class="hole"></div>
+                        <div class="hole"></div>
+                    </div>
+                    <div class="ticket-content">
+                        <div class="ticket-qr" onclick="showQR()">
+                            <img id="qrImg" src="" width="80" height="80" alt="QR">
+                            <div
+                                style="text-align:center;font-size:0.58rem;font-family:'JetBrains Mono';color:var(--text3);margin-top:4px;letter-spacing:1px;">
+                                SCAN ME</div>
+                        </div>
+                        <div class="ticket-fields">
+                            <div>
+                                <div class="tf-label">Vehicle</div>
+                                <div class="tf-val" id="tVeh">--</div>
+                            </div>
+                            <div>
+                                <div class="tf-label">Slot</div>
+                                <div class="tf-val highlight" id="tSlot">--</div>
+                            </div>
+                            <div>
+                                <div class="tf-label">Token</div>
+                                <div class="tf-val" id="tToken" style="font-size:0.75rem;">--</div>
+                            </div>
+                            <div>
+                                <div class="tf-label">Entry</div>
+                                <div class="tf-val" id="tTime">--</div>
+                            </div>
+                            <div>
+                                <div class="tf-label">Duration</div>
+                                <div class="tf-val" id="tDur">--</div>
+                            </div>
+                            <div>
+                                <div class="tf-label">Est. Bill</div>
+                                <div class="tf-val highlight" id="tBill">--</div>
+                            </div>
+                        </div>
+                        <div class="ticket-action">
+                            <div class="ticket-timer">
+                                <div class="timer-dot"></div><span id="timerTxt">Session active</span>
+                            </div>
+                            <button class="btn-exit" onclick="doExit()" style="margin-top:10px;"><i
+                                    class="fas fa-door-open"></i>Exit & Pay</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container page">
+
+            <!-- WELCOME HERO -->
+            <div class="welcome-hero">
+                <div class="wh-content">
+                    <div>
+                        <div class="wh-title">Welcome back, <span id="dashName">User</span> </div>
+                        <div class="wh-sub">Your smart parking dashboard. All systems operational.</div>
+                    </div>
+                    <div class="wh-stats stagger">
+                        <div class="wh-stat">
+                            <div class="wh-num" id="whBal">0</div>
+                            <div class="wh-lbl">Wallet Balance</div>
+                        </div>
+                        <div class="wh-stat">
+                            <div class="wh-num" id="whTx">0</div>
+                            <div class="wh-lbl">Total Trips</div>
+                        </div>
+                        <div class="wh-stat">
+                            <div class="wh-num" id="whSaved">0</div>
+                            <div class="wh-lbl">Total Spent</div>
+                        </div>
+                        <div class="wh-stat">
+                            <div class="wh-num" id="whOcc" style="color:#22c55e;">%</div>
+                            <div class="wh-lbl">Live Occupancy</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIVE BAR -->
+            <div class="live-bar stagger">
+                <div class="live-dot"></div>
+                <span style="font-family:'JetBrains Mono';font-size:0.65rem;color:var(--text3);letter-spacing:1px;">LIVE
+                    STATUS</span>
+                <div class="live-stat">
+                    <div class="ls-icon" style="background:rgba(26,86,219,0.1);color:var(--primary);"><i
+                            class="fas fa-car"></i></div>
+                    <div>
+                        <div class="ls-num" id="lsOcc">0</div>
+                        <div class="ls-lbl">Occupied</div>
+                    </div>
+                </div>
+                <div class="live-stat">
+                    <div class="ls-icon" style="background:rgba(5,150,105,0.1);color:var(--green);"><i
+                            class="fas fa-square-parking"></i></div>
+                    <div>
+                        <div class="ls-num" id="lsAvail">1300</div>
+                        <div class="ls-lbl">Available</div>
+                    </div>
+                </div>
+                <div class="live-stat">
+                    <div class="ls-icon" style="background:rgba(255,107,0,0.1);color:var(--accent);"><i
+                            class="fas fa-bolt"></i></div>
+                    <div>
+                        <div class="ls-num">24</div>
+                        <div class="ls-lbl">EV Bays</div>
+                    </div>
+                </div>
+                <div class="live-stat">
+                    <div class="ls-icon" style="background:rgba(124,58,237,0.1);color:#7c3aed;"><i
+                            class="fas fa-circle-dot"></i></div>
+                    <div>
+                        <div class="ls-num" id="lsPct">0%</div>
+                        <div class="ls-lbl">Occupancy</div>
+                    </div>
+                </div>
+                <div style="flex:1;"></div>
+                <div style="font-family:'JetBrains Mono';font-size:0.65rem;color:var(--text3);" id="lsTime"></div>
+            </div>
+
+            <!-- QUICK ACTIONS -->
+            <div class="qa-grid stagger" style="margin-bottom:20px;">
+                <a href="parking.html" class="qa-card">
+                    <div class="qa-icon" style="background:rgba(26,86,219,0.1);color:var(--primary);"><i
+                            class="fas fa-map-marked-alt"></i></div>
+                    <div class="qa-label">Find a Spot</div>
+                    <div class="qa-desc">AI-powered routing</div>
+                </a>
+                <div class="qa-card" onclick="handleWallet()">
+                    <div class="qa-icon" style="background:rgba(5,150,105,0.1);color:var(--green);"><i
+                            class="fas fa-wallet"></i></div>
+                    <div class="qa-label">My Wallet</div>
+                    <div class="qa-desc" id="qaWalBal">0.00</div>
+                </div>
+                <div class="qa-card" onclick="openHistoryModal()">
+                    <div class="qa-icon" style="background:rgba(255,107,0,0.1);color:var(--accent);"><i
+                            class="fas fa-clock-rotate-left"></i></div>
+                    <div class="qa-label">My History</div>
+                    <div class="qa-desc" id="qaTrips">0 trips</div>
+                </div>
+                <div class="qa-card" onclick="toggleChat()">
+                    <div class="qa-icon" style="background:rgba(124,58,237,0.1);color:#7c3aed;"><i
+                            class="fas fa-robot"></i></div>
+                    <div class="qa-label">ParkMind AI</div>
+                    <div class="qa-desc">Ask anything</div>
+                </div>
+            </div>
+
+            <!-- MAIN GRID -->
+            <div class="dash-grid">
+                <div class="stagger">
+
+                    <!-- FEATURES -->
+                    <div class="feature-grid" style="margin-bottom:16px;">
+                        <div class="feat-card blue" onclick="window.location.href='parking.html'">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                                <div
+                                    style="width:40px;height:40px;border-radius:11px;background:rgba(26,86,219,0.1);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1rem;">
+                                    <i class="fas fa-route"></i>
+                                </div>
+                                <div style="font-family:'Syne';font-weight:700;font-size:0.9rem;">Smart Routing</div>
+                            </div>
+                            <div style="font-size:0.8rem;color:var(--text2);line-height:1.6;">AI finds the closest
+                                available slot to your destination in real-time. Save up to 8 mins walking.</div>
+                            <div style="margin-top:12px;font-size:0.75rem;color:var(--primary);font-weight:600;">Book
+                                now </div>
+                        </div>
+                        <div class="feat-card orange" id="primeCard" onclick="handlePrimeMembership()"
+                            style="cursor:pointer;">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                                <div
+                                    style="width:40px;height:40px;border-radius:11px;background:rgba(255,107,0,0.1);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1rem;">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div style="font-family:'Syne';font-weight:700;font-size:0.9rem;" id="primeTitle">Prime
+                                    Membership</div>
+                            </div>
+                            <div style="font-size:0.72rem;color:var(--green);font-weight:700;margin-bottom:6px;display:none;"
+                                id="primeStatus">ACTIVE</div>
+                            <div style="font-size:0.8rem;color:var(--text2);line-height:1.6;" id="primeDesc">1999/month
+                                for unlimited
+                                access, priority slots, and 20% cashback on every transaction.</div>
+                            <div style="margin-top:12px;font-size:0.75rem;color:var(--accent);font-weight:600;"
+                                id="primeCta">Upgrade
+                                now </div>
+                        </div>
+                    </div>
+
+                    <!-- OCCUPANCY CARD -->
+                    <div class="card" style="margin-bottom:16px;">
+                        <div class="card-title"><i class="fas fa-chart-pie"></i> Live Parking Intelligence</div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;">
+                            <div style="text-align:center;">
+                                <div style="font-family:'Syne';font-weight:800;font-size:1.5rem;color:var(--green);"
+                                    id="zoneA"></div>
+                                <div style="font-size:0.7rem;color:var(--text3);">Zone A Free</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div style="font-family:'Syne';font-weight:800;font-size:1.5rem;color:var(--yellow);"
+                                    id="zoneB"></div>
+                                <div style="font-size:0.7rem;color:var(--text3);">Zone B Free</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div style="font-family:'Syne';font-weight:800;font-size:1.5rem;color:var(--primary);"
+                                    id="zoneC"></div>
+                                <div style="font-size:0.7rem;color:var(--text3);">Zone C Free</div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:6px;display:flex;justify-content:space-between;font-size:0.75rem;">
+                            <span style="color:var(--text3);">Overall occupancy</span><span id="occPctLabel"
+                                style="font-weight:600;">0%</span>
+                        </div>
+                        <div class="occ-bar">
+                            <div class="occ-fill" id="occFill" style="width:0%;"></div>
+                        </div>
+                        <div
+                            style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.72rem;color:var(--text3);">
+                            <span id="aiDemand">Demand: LOW</span>
+                            <span id="aiEta">Best time: Now</span>
+                        </div>
+                    </div>
+
+                    <!-- PRICING -->
+                    <div class="card" style="margin-bottom:16px;">
+                        <div class="card-title"><i class="fas fa-tags"></i> Pricing</div>
+                        <table class="price-table">
+                            <thead>
+                                <tr>
+                                    <th>Zone</th>
+                                    <th>Rate</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><b>Zone A</b> (Ground)</td>
+                                    <td style="font-weight:700;color:var(--text);">20/hr</td>
+                                    <td>Standard</td>
+                                    <td><span class="price-badge"
+                                            style="background:rgba(5,150,105,0.1);color:var(--green);"> Open</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>Zone B</b> (Basement)</td>
+                                    <td style="font-weight:700;">15/hr</td>
+                                    <td>Economy</td>
+                                    <td><span class="price-badge"
+                                            style="background:rgba(5,150,105,0.1);color:var(--green);"> Open</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>Zone C</b> (Rooftop)</td>
+                                    <td style="font-weight:700;">25/hr</td>
+                                    <td>Premium</td>
+                                    <td><span class="price-badge"
+                                            style="background:rgba(26,86,219,0.1);color:var(--primary);">Premium</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>EV Bays</b></td>
+                                    <td style="font-weight:700;">30/hr</td>
+                                    <td>EV + Charge</td>
+                                    <td><span class="price-badge"
+                                            style="background:rgba(5,150,105,0.1);color:var(--green);">24 Open</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- RULES -->
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-shield-halved"></i> Rules & Guidelines</div>
+                        <div class="rule-item">
+                            <div class="rule-icon" style="background:rgba(26,86,219,0.1);color:var(--primary);"><i
+                                    class="fas fa-gauge-high"></i></div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.85rem;">Speed Limit: 10 km/h</div>
+                                <div style="font-size:0.78rem;color:var(--text3);">Inside all parking zones at all
+                                    times.</div>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <div class="rule-icon" style="background:rgba(220,38,38,0.08);color:var(--red);"><i
+                                    class="fas fa-triangle-exclamation"></i></div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.85rem;">Wrong Slot: 500 Fine</div>
+                                <div style="font-size:0.78rem;color:var(--text3);">Park only in your allocated slot
+                                    number.</div>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <div class="rule-icon" style="background:rgba(217,119,6,0.1);color:var(--yellow);"><i
+                                    class="fas fa-car-burst"></i></div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.85rem;">Park at Own Risk</div>
+                                <div style="font-size:0.78rem;color:var(--text3);">We are not liable for loss, theft, or
+                                    damage.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT SIDEBAR -->
+                <div class="stagger">
+
+                    <!-- WALLET CARD -->
+                    <div class="card" style="margin-bottom:14px;">
+                        <div class="card-title"><i class="fas fa-wallet"></i> My Wallet</div>
+                        <div style="font-family:'Syne';font-weight:800;font-size:2rem;color:var(--ink);margin-bottom:4px;"
+                            id="walletBig">0.00</div>
+                        <div style="font-size:0.75rem;color:var(--text3);margin-bottom:12px;" id="hoursLeft">Approx. 0
+                            hours of parking</div>
+                        <div class="wallet-meter">
+                            <div
+                                style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text3);margin-bottom:4px;">
+                                <span>Balance health</span><span id="walHealthLabel"></span>
+                            </div>
+                            <div class="meter-bar">
+                                <div class="meter-fill" id="walMeter" style="width:0%;"></div>
+                            </div>
+                        </div>
+                        <button class="btn-auth btn-primary-auth"
+                            style="padding:10px;margin-top:14px;font-size:0.82rem;" onclick="handleWallet()"><i
+                                class="fas fa-plus"></i>Add Money</button>
+                    </div>
+
+                    <!-- AI ADVISOR CARD -->
+                    <div class="card" style="margin-bottom:14px;background:linear-gradient(135deg,#f0f4ff,#e8f0fe);">
+                        <div class="card-title" style="color:var(--primary);"><i class="fas fa-robot"></i> ParkMind AI
+                        </div>
+                        <div style="font-size:0.82rem;color:var(--text2);line-height:1.6;margin-bottom:12px;"
+                            id="aiCard">AI is analyzing current conditions</div>
+                        <button class="btn-auth btn-secondary-auth"
+                            style="padding:8px;margin-top:12px;font-size:0.78rem;" onclick="openParkmateAi()"><i
+                                class="fas fa-comment-dots"></i>Open Full Chat</button>
+                    </div>
+
+                    <!-- PRIVACY CARD -->
+                    <div class="card" style="margin-bottom:14px;">
+                        <div class="card-title"><i class="fas fa-lock"></i> Privacy & Security</div>
+                        <div style="font-size:0.8rem;color:var(--text2);line-height:1.7;">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><i
+                                    class="fas fa-check-circle" style="color:var(--green);"></i> Data encrypted at rest
+                                & transit</div>
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><i
+                                    class="fas fa-check-circle" style="color:var(--green);"></i> No location tracking
+                                outside app</div>
+                            <div style="display:flex;align-items:center;gap:8px;"><i class="fas fa-check-circle"
+                                    style="color:var(--green);"></i> GDPR compliant data handling</div>
+                        </div>
+                        <a href="privacy.html"
+                            style="font-size:0.75rem;color:var(--primary);display:block;margin-top:10px;">Read
+                            Privacy Policy </a>
+                    </div>
+
+                    <!-- ADMIN LINK -->
+                    <div class="card" style="background:var(--ink);border-color:transparent;">
+                        <div class="card-title" style="color:var(--accent);"><i class="fas fa-chart-line"></i> Live
+                            Revenue Tracking</div>
+                        <div style="font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.6;margin-bottom:12px;">
+                            Access the real-time admin command center with AI analytics.</div>
+                        <a href="admin.html" class="btn-auth btn-primary-auth"
+                            style="padding:9px;font-size:0.78rem;display:flex;align-items:center;gap:6px;text-decoration:none;background:linear-gradient(135deg,var(--accent),#ff8c38);box-shadow:0 4px 16px rgba(255,107,0,0.3);"><i
+                                class="fas fa-external-link-alt"></i>Open Admin Terminal</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  CHAT  -->
+    <button class="chat-fab" id="chatFab" onclick="openParkmateAi()" style="display:none;">
+        <i class="fas fa-comment-dots"></i>
+        <div class="badge-ct" id="chatBadge" style="display:none;">1</div>
+    </button>
+
+    <!--  HISTORY MODAL  -->
+    <div class="modal-backdrop" id="histModal">
+        <div class="modal-box">
+            <div class="modal-head">
+                <div class="modal-title"><i class="fas fa-clock-rotate-left"
+                        style="color:var(--primary);margin-right:8px;"></i>My Activity</div>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div
+                    style="font-family:'JetBrains Mono';font-size:0.6rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">
+                    Current Active Pass</div>
+                <div id="activePassBox"></div>
+                <div
+                    style="font-family:'JetBrains Mono';font-size:0.6rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 10px;">
+                    Transaction History</div>
+                <div id="histList"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-brand">ParkMate <span>Prime</span></div>
+        <div style="margin-bottom:12px;">
+            <a href="policies.html">Conditions of Use</a>
+            <a href="privacy.html">Privacy Notice</a>
+            <a href="privacy.html">Help & Support</a>
+            <a href="about.html">About</a>
+            <a href="parkmate-ai.html">ParkMate AI</a>
+        </div>
+        <div>&copy; 2026, ParkMate Prime, Inc. All rights reserved.</div>
+    </footer>
+
+    <script>
+        // 
+        //  CURSOR — desktop pointer only
+        // 
+        const cur = document.getElementById('cur'), cur2 = document.getElementById('cur2');
+        const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+        if (!isTouch) {
+            document.addEventListener('mousemove', e => {
+                cur.style.left = e.clientX + 'px'; cur.style.top = e.clientY + 'px';
+                cur2.style.left = e.clientX + 'px'; cur2.style.top = e.clientY + 'px';
+            });
+        }
+
+        // 
+        //  PARTICLES
+        // 
+        const pcv = document.getElementById('pcv'); const pctx = pcv.getContext('2d');
+        function pcvResize() { pcv.width = innerWidth; pcv.height = innerHeight; } pcvResize(); window.addEventListener('resize', pcvResize);
+        const pts = Array.from({ length: 50 }, () => ({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, vx: (Math.random() - .5) * .3, vy: (Math.random() - .5) * .3, r: Math.random() * 1.2 + .3 }));
+        function animPts() {
+            pctx.clearRect(0, 0, pcv.width, pcv.height);
+            pts.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > pcv.width) p.vx *= -1;
+                if (p.y < 0 || p.y > pcv.height) p.vy *= -1;
+                pctx.beginPath(); pctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                pctx.fillStyle = 'rgba(26,86,219,0.18)'; pctx.fill();
+            });
+            requestAnimationFrame(animPts);
+        } animPts();
+
+        // 
+        //  SLIDER
+        // 
+        const slides = document.querySelectorAll('.slide'); let slideIdx = 0;
+        const nav = document.getElementById('sliderNav');
+        slides.forEach((_, i) => { const d = document.createElement('div'); d.className = 'snav-dot' + (i === 0 ? ' on' : ''); d.onclick = () => goSlide(i); nav.appendChild(d); });
+        function goSlide(n) { slides[slideIdx].classList.remove('active'); document.querySelectorAll('.snav-dot')[slideIdx].classList.remove('on'); slideIdx = ((n % slides.length) + slides.length) % slides.length; slides[slideIdx].classList.add('active'); document.querySelectorAll('.snav-dot')[slideIdx].classList.add('on'); }
+        function slideMove(d) { goSlide(slideIdx + d); }
+        setInterval(() => goSlide(slideIdx + 1), 5000);
+
+        // 
+        //  STATE
+        // 
+        let currentUser = null;
+
+        window.onload = function () {
+            const su = localStorage.getItem('pmCurrentUser');
+            if (su) { currentUser = JSON.parse(su); sessionStorage.setItem('pmSession', 'true'); }
+            if (!sessionStorage.getItem('pmSession')) currentUser = null;
+            initUI();
+            startLiveStats();
+            if (currentUser) showAiCard();
+        };
+
+        function initUI() {
+            const isMobile = window.innerWidth <= 768;
+
+            if (currentUser) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('heroSlider').style.display = 'none';
+                document.getElementById('dashSection').style.display = 'block';
+                document.getElementById('subNav').style.display = 'flex';
+                document.getElementById('chatFab').style.display = 'flex';
+
+                // Desktop nav: show tools, hide auth buttons
+                if (!isMobile) {
+                    document.getElementById('navTools').style.display = 'flex';
+                    document.getElementById('navAuthBtn').style.display = 'none';
+                    document.getElementById('navSearch').style.display = 'flex';
+                }
+
+                document.getElementById('navAvatar').textContent = currentUser.name[0].toUpperCase();
+                document.getElementById('navUserName').textContent = currentUser.name.split(' ')[0];
+                document.getElementById('dashName').textContent = currentUser.name.split(' ')[0];
+                updateWalletUI();
+                renderTicket();
+                renderStats();
+                renderPrimeMembershipCard();
+                chatGreet();
+            } else {
+                document.getElementById('loginSection').style.display = 'flex';
+                document.getElementById('heroSlider').style.display = 'block';
+                document.getElementById('dashSection').style.display = 'none';
+                document.getElementById('navTools').style.display = 'none';
+                document.getElementById('subNav').style.display = 'none';
+                document.getElementById('chatFab').style.display = 'none';
+
+                if (!isMobile) {
+                    document.getElementById('navAuthBtn').style.display = 'flex';
+                } else {
+                    document.getElementById('navAuthBtn').style.display = 'none';
+                }
+
+                renderPrimeMembershipCard();
+            }
+
+            updateDrawerState();
+            updateNavForMobile();
+        }
+
+        // 
+        //  AUTH & MOBILE MENU
+        // 
+        // ═══════════════════════════════════
+        //  MOBILE DRAWER
+        // ═══════════════════════════════════
+        function openDrawer() {
+            const drawer = document.getElementById('mobileDrawer');
+            const backdrop = document.getElementById('drawerBackdrop');
+            const btn = document.getElementById('hamburgerBtn');
+            drawer.classList.add('open');
+            backdrop.classList.add('open');
+            btn.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawer() {
+            const drawer = document.getElementById('mobileDrawer');
+            const backdrop = document.getElementById('drawerBackdrop');
+            const btn = document.getElementById('hamburgerBtn');
+            drawer.classList.remove('open');
+            backdrop.classList.remove('open');
+            btn.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function updateDrawerState() {
+            const userSection = document.getElementById('drawerUserSection');
+            const authFooter = document.getElementById('drawerAuthFooter');
+            const drawerBal = document.getElementById('drawerBal');
+            if (currentUser) {
+                if (userSection) userSection.style.display = 'block';
+                if (authFooter) authFooter.style.display = 'none';
+                if (drawerBal) drawerBal.textContent = '₹' + (currentUser.balance || 0).toFixed(0);
+            } else {
+                if (userSection) userSection.style.display = 'none';
+                if (authFooter) authFooter.style.display = 'flex';
+            }
+        }
+
+        // Close drawer on Escape key
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+
+
+        function scrollToAuth() {
+            closeDrawer();
+            document.getElementById('authAnchor').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleAuth(m) {
+            const lf = document.getElementById('loginForm'), sf = document.getElementById('signupForm');
+            const tl = document.getElementById('tabLogin'), ts = document.getElementById('tabSignup');
+            const title = document.getElementById('cardTitle'), sub = document.getElementById('cardSub');
+            if (m === 'login') {
+                lf.style.display = 'flex'; sf.style.display = 'none';
+                tl.classList.add('on'); ts.classList.remove('on');
+                if (title) title.textContent = 'Welcome Back';
+                if (sub) sub.textContent = 'Sign in to your ParkMate Prime account';
+            } else {
+                lf.style.display = 'none'; sf.style.display = 'flex';
+                tl.classList.remove('on'); ts.classList.add('on');
+                if (title) title.textContent = 'Create Account';
+                if (sub) sub.textContent = 'Join 50,000+ drivers using ParkMate Prime';
+            }
+            clearAllValidation();
+        }
+
+        function clearAllValidation() {
+            document.querySelectorAll('.form-input').forEach(el => { el.classList.remove('err', 'ok'); });
+            document.querySelectorAll('.field-msg').forEach(el => { el.className = 'field-msg'; el.innerHTML = ''; });
+        }
+
+        function setFieldErr(msgId, inputEl, msg) {
+            if (inputEl) inputEl.classList.add('err');
+            if (inputEl) inputEl.classList.remove('ok');
+            const m = document.getElementById(msgId);
+            if (m) { m.className = 'field-msg err'; m.innerHTML = '<i class="fas fa-circle-xmark"></i> ' + msg; }
+        }
+
+        function setFieldOk(msgId, inputEl) {
+            if (inputEl) inputEl.classList.add('ok');
+            if (inputEl) inputEl.classList.remove('err');
+            const m = document.getElementById(msgId);
+            if (m) { m.className = 'field-msg ok'; m.innerHTML = '<i class="fas fa-circle-check"></i> Looks good'; }
+        }
+
+        function clearField(msgId, inputEl) {
+            if (inputEl) inputEl.classList.remove('err', 'ok');
+            const m = document.getElementById(msgId);
+            if (m) { m.className = 'field-msg'; m.innerHTML = ''; }
+        }
+
+        function toggleEye(id, icon) {
+            const el = document.getElementById(id);
+            if (el) { el.type = el.type === 'password' ? 'text' : 'password'; icon.className = el.type === 'password' ? 'fas fa-eye input-eye' : 'fas fa-eye-slash input-eye'; }
+        }
+
+        function checkStrength(v) {
+            const fill = document.getElementById('strengthFill');
+            const lbl = document.getElementById('strengthLabel');
+            const score = document.getElementById('strengthScore');
+            if (!fill) return;
+            let s = 0;
+            if (v.length >= 8) s++;
+            if (/[A-Z]/.test(v)) s++;
+            if (/[0-9]/.test(v)) s++;
+            if (/[!@#$%^&*]/.test(v)) s++;
+            const pcts = [0, 25, 55, 80, 100];
+            const colors = ['', '#ef4444', '#f59e0b', '#3b82f6', '#059669'];
+            const labels = ['Min 8 characters', 'Weak — add uppercase', 'Fair — add numbers', 'Good — add symbols', 'Strong ✓'];
+            fill.style.width = pcts[s] + '%';
+            fill.style.background = colors[s] || '#e5e7eb';
+            if (lbl) lbl.textContent = labels[s] || 'Min 8 characters';
+            if (score) score.textContent = s >= 3 ? ['', '', '', 'Good', 'Strong'][s] : '';
+        }
+
+        function doLogin(e) {
+            e.preventDefault();
+            const emailEl = document.getElementById('loginEmail');
+            const passEl = document.getElementById('loginPass');
+            const email = emailEl.value.trim();
+            const pass = passEl.value;
+            let valid = true;
+
+            clearAllValidation();
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                setFieldErr('loginEmailMsg', emailEl, 'Enter a valid email address');
+                valid = false;
+            } else {
+                setFieldOk('loginEmailMsg', emailEl);
+            }
+
+            if (!pass || pass.length < 1) {
+                setFieldErr('loginPassMsg', passEl, 'Password is required');
+                valid = false;
+            } else {
+                clearField('loginPassMsg', passEl);
+            }
+
+            if (!valid) return;
+
+            const users = JSON.parse(localStorage.getItem('pmUsersDB')) || [];
+            const u = users.find(x => x.email === email && x.pass === pass);
+            if (u) {
+                setFieldOk('loginEmailMsg', emailEl);
+                localStorage.setItem('pmCurrentUser', JSON.stringify(u));
+                sessionStorage.setItem('pmSession', 'true');
+                showToast('Welcome back, ' + u.name.split(' ')[0] + '!', 'ok');
+                setTimeout(() => location.reload(), 800);
+            } else {
+                setFieldErr('loginEmailMsg', emailEl, 'Email or password is incorrect');
+                setFieldErr('loginPassMsg', passEl, 'Please check your credentials');
+                Swal.fire({ title: 'Sign In Failed', text: 'No account found with those credentials.', icon: 'error', confirmButtonColor: 'var(--primary)' });
+            }
+        }
+
+        function doSignup(e) {
+            e.preventDefault();
+            const nameEl = document.getElementById('regName');
+            const emailEl = document.getElementById('regEmail');
+            const passEl = document.getElementById('regPass');
+            const name = nameEl.value.trim();
+            const email = emailEl.value.trim();
+            const pass = passEl.value;
+            let valid = true;
+
+            clearAllValidation();
+
+            if (!name || name.length < 2) {
+                setFieldErr('regNameMsg', nameEl, 'Name must be at least 2 characters');
+                valid = false;
+            } else {
+                setFieldOk('regNameMsg', nameEl);
+            }
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                setFieldErr('regEmailMsg', emailEl, 'Enter a valid email address');
+                valid = false;
+            } else {
+                setFieldOk('regEmailMsg', emailEl);
+            }
+
+            if (pass.length < 8) {
+                setFieldErr('regPassMsg', passEl, 'Password must be at least 8 characters');
+                valid = false;
+            } else {
+                setFieldOk('regPassMsg', passEl);
+            }
+
+            if (!valid) return;
+
+            let users = JSON.parse(localStorage.getItem('pmUsersDB')) || [];
+            if (users.find(u => u.email === email)) {
+                setFieldErr('regEmailMsg', emailEl, 'This email is already registered');
+                Swal.fire('Already Registered', 'An account with this email already exists. Sign in instead.', 'error');
+                return;
+            }
+
+            const nu = { name, email, pass, balance: 0 };
+            users.push(nu);
+            localStorage.setItem('pmUsersDB', JSON.stringify(users));
+            showToast('Account created! Sign in to continue.', 'ok');
+
+            // Reset form cleanly
+            nameEl.value = ''; emailEl.value = ''; passEl.value = '';
+            const fill = document.getElementById('strengthFill');
+            if (fill) { fill.style.width = '0%'; fill.style.background = ''; }
+            const lbl = document.getElementById('strengthLabel');
+            if (lbl) lbl.textContent = 'Min 8 characters';
+            toggleAuth('login');
+        }
+
+        function demoLogin() {
+            let users = JSON.parse(localStorage.getItem('pmUsersDB')) || [];
+            let demo = users.find(u => u.email === 'demo@parkmate.com');
+            if (!demo) { demo = { name: 'Demo User', email: 'demo@parkmate.com', pass: 'demo123', balance: 500 }; users.push(demo); localStorage.setItem('pmUsersDB', JSON.stringify(users)); }
+            localStorage.setItem('pmCurrentUser', JSON.stringify(demo));
+            sessionStorage.setItem('pmSession', 'true');
+            showToast('Demo session started!', 'ok');
+            setTimeout(() => location.reload(), 600);
+        }
+
+        function logout() {
+            localStorage.removeItem('pmCurrentUser'); sessionStorage.clear();
+            showToast('Signed out.', 'inf'); setTimeout(() => location.reload(), 600);
+        }
+
+        // 
+        //  WALLET
+        // 
+        function updateWalletUI() {
+            if (!currentUser) return;
+            const bal = parseFloat(currentUser.balance).toFixed(2);
+            const fmt = '₹' + parseFloat(bal).toLocaleString('en-IN');
+            document.getElementById('navBal').textContent = fmt;
+            document.getElementById('walletBig').textContent = '₹' + parseFloat(bal).toFixed(2);
+            document.getElementById('qaWalBal').textContent = '₹' + parseFloat(bal).toFixed(2);
+            document.getElementById('whBal').textContent = fmt;
+            const hrs = Math.floor(currentUser.balance / 20);
+            document.getElementById('hoursLeft').textContent = `Approx. ${hrs} hours of parking`;
+            const health = Math.min(100, currentUser.balance / 1000 * 100);
+            document.getElementById('walMeter').style.width = health + '%';
+            document.getElementById('walHealthLabel').textContent = health > 60 ? 'Healthy' : health > 25 ? 'Moderate' : 'Low';
+            // Update drawer balance
+            const drawerBal = document.getElementById('drawerBal');
+            if (drawerBal) drawerBal.textContent = '₹' + parseFloat(bal).toFixed(0);
+            // User stats
+            const myRecs = (JSON.parse(localStorage.getItem('admin_records')) || []).filter(r => r.status === currentUser.name && r.isReal);
+            document.getElementById('whTx').textContent = myRecs.length;
+            document.getElementById('whSaved').textContent = '₹' + myRecs.reduce((a, r) => a + r.amount, 0);
+            document.getElementById('qaTrips').textContent = myRecs.length + ' trips';
+        }
+
+        function saveUser() {
+            localStorage.setItem('pmCurrentUser', JSON.stringify(currentUser));
+            let users = JSON.parse(localStorage.getItem('pmUsersDB')) || [];
+            const i = users.findIndex(u => u.email === currentUser.email);
+            if (i >= 0) { users[i] = currentUser; localStorage.setItem('pmUsersDB', JSON.stringify(users)); }
+        }
+
+        function getPrimeState() {
+            if (!currentUser) return { active: false };
+            const p = currentUser.prime || {};
+            const exp = p.expiresAt ? new Date(p.expiresAt).getTime() : 0;
+            return { active: !!p.active && exp > Date.now(), expiresAt: exp ? new Date(exp) : null };
+        }
+
+        function renderPrimeMembershipCard() {
+            const title = document.getElementById('primeTitle');
+            const status = document.getElementById('primeStatus');
+            const desc = document.getElementById('primeDesc');
+            const cta = document.getElementById('primeCta');
+            if (!title || !status || !desc || !cta) return;
+            if (!currentUser) {
+                status.style.display = 'none';
+                title.textContent = 'Prime Membership';
+                desc.textContent = '1999/month for unlimited access, priority slots, and 20% cashback on every transaction.';
+                cta.textContent = 'Sign in to upgrade';
+                return;
+            }
+            const ps = getPrimeState();
+            if (ps.active) {
+                status.style.display = 'block';
+                title.textContent = 'Prime Membership Active';
+                desc.textContent = `Unlimited access, priority slots, and 20% cashback enabled. Valid till ${ps.expiresAt.toLocaleDateString('en-IN')}.`;
+                cta.textContent = 'Manage membership';
+            } else {
+                status.style.display = 'none';
+                title.textContent = 'Prime Membership';
+                desc.textContent = '1999/month for unlimited access, priority slots, and 20% cashback on every transaction.';
+                cta.textContent = 'Upgrade now';
+            }
+        }
+
+        function handlePrimeMembership() {
+            if (!currentUser) {
+                Swal.fire({ title: 'Sign In Required', text: 'Please sign in to activate Prime Membership.', icon: 'warning', confirmButtonColor: 'var(--primary)' });
+                return;
+            }
+            const ps = getPrimeState();
+            if (ps.active) {
+                Swal.fire({
+                    title: 'Prime Membership',
+                    html: `<div style="text-align:left;font-family:'DM Sans';line-height:1.9;">
+                    <div><b>Status:</b> <span style="color:#059669;">Active</span></div>
+                    <div><b>Valid till:</b> ${ps.expiresAt.toLocaleDateString('en-IN')}</div>
+                    <div><b>Benefits:</b> Unlimited access, priority slots, 20% cashback</div>
+                    </div>`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Renew for Rs 1999',
+                    cancelButtonText: 'Close',
+                    confirmButtonColor: 'var(--accent)'
+                }).then(r => {
+                    if (!r.isConfirmed) return;
+                    if (currentUser.balance < 1999) {
+                        Swal.fire({ title: 'Low Wallet Balance', text: 'Add funds to renew Prime.', icon: 'error', confirmButtonText: 'Add Money' }).then(x => { if (x.isConfirmed) handleWallet(); });
+                        return;
+                    }
+                    currentUser.balance -= 1999;
+                    const next = new Date();
+                    next.setMonth(next.getMonth() + 1);
+                    currentUser.prime = { active: true, startedAt: new Date().toISOString(), expiresAt: next.toISOString() };
+                    saveUser();
+                    updateWalletUI();
+                    renderPrimeMembershipCard();
+                    showToast('Prime renewed successfully.', 'ok');
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Activate Prime Membership',
+                html: `<div style="text-align:left;font-family:'DM Sans';line-height:1.9;">
+                <div><b>Plan:</b> Monthly Prime</div>
+                <div><b>Price:</b> Rs 1999</div>
+                <div><b>Wallet:</b> Rs ${currentUser.balance.toFixed(2)}</div>
+                <hr style="margin:10px 0;border:none;border-top:1px solid #e5e7eb;">
+                <div>Includes unlimited access, priority slots, and 20% cashback on each transaction.</div>
+                </div>`,
+                showCancelButton: true,
+                confirmButtonText: 'Pay Rs 1999',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: 'var(--accent)'
+            }).then(r => {
+                if (!r.isConfirmed) return;
+                if (currentUser.balance < 1999) {
+                    Swal.fire({ title: 'Low Wallet Balance', text: 'Add funds to activate Prime.', icon: 'error', confirmButtonText: 'Add Money' }).then(x => { if (x.isConfirmed) handleWallet(); });
+                    return;
+                }
+                currentUser.balance -= 1999;
+                const exp = new Date();
+                exp.setMonth(exp.getMonth() + 1);
+                currentUser.prime = { active: true, startedAt: new Date().toISOString(), expiresAt: exp.toISOString() };
+                saveUser();
+                updateWalletUI();
+                renderPrimeMembershipCard();
+                showToast('Prime activated. 20% cashback is now enabled.', 'ok');
+            });
+        }
+        function handleWallet() {
+            Swal.fire({
+                title: 'My Wallet',
+                html: `<div style="text-align:left;font-family:'DM Sans';"><p style="font-size:0.9rem;color:#555;">Current Balance</p><p style="font-family:'Syne';font-weight:800;font-size:2rem;color:#1a56db;">Rs ${currentUser.balance.toFixed(2)}</p></div>`,
+                input: 'number', inputLabel: 'Amount to add (Rs)', inputPlaceholder: 'e.g. 500',
+                showCancelButton: true, confirmButtonText: 'Add Funds', confirmButtonColor: 'var(--primary)',
+                inputValidator: v => { if (!v || v <= 0) return 'Enter a valid amount'; }
+            }).then(r => {
+                if (r.isConfirmed && r.value) {
+                    currentUser.balance += parseFloat(r.value); saveUser(); updateWalletUI();
+                    showToast('Rs ' + r.value + ' added to wallet!', 'ok');
+                }
+            });
+        }
+
+        // 
+        //  LIVE STATS
+        // 
+        function startLiveStats() {
+            updateStats(); setInterval(updateStats, 5000);
+        }
+        function updateStats() {
+            const booked = (JSON.parse(localStorage.getItem('bookedSlots')) || []).length;
+            const simOcc = Math.floor(1300 * 0.35) + booked + Math.floor(Math.random() * 8);
+            const pct = ((simOcc / 1300) * 100);
+            const avail = 1300 - simOcc;
+            document.getElementById('lsOcc').textContent = simOcc;
+            document.getElementById('lsAvail').textContent = avail;
+            document.getElementById('lsPct').textContent = pct.toFixed(1) + '%';
+            document.getElementById('lsTime').textContent = 'Updated ' + new Date().toLocaleTimeString();
+            document.getElementById('whOcc').textContent = pct.toFixed(0) + '%';
+            document.getElementById('occPctLabel').textContent = pct.toFixed(1) + '%';
+            // Zone split
+            document.getElementById('zoneA').textContent = Math.floor(avail * 0.4);
+            document.getElementById('zoneB').textContent = Math.floor(avail * 0.35);
+            document.getElementById('zoneC').textContent = Math.floor(avail * 0.25);
+            // Bar color
+            const fill = document.getElementById('occFill');
+            fill.style.width = pct + '%';
+            fill.className = 'occ-fill' + (pct > 80 ? ' crit' : pct > 60 ? ' warn' : '');
+            // AI demand
+            const demand = pct < 35 ? 'LOW  Perfect time to park' : pct < 65 ? 'MODERATE  Book within 10 mins' : 'HIGH  Limited spots, book now!';
+            document.getElementById('aiDemand').textContent = 'AI Demand: ' + demand.split('  ')[0].trim();
+            document.getElementById('aiEta').textContent = pct < 50 ? 'Best time: Right now' : 'Best time: After 8PM';
+            document.getElementById('slideOcc').textContent = pct.toFixed(0) + '%';
+            if (currentUser) showAiCard();
+        }
+        function renderStats() { updateStats(); }
+
+        // 
+        //  AI CARD
+        // 
+        function showAiCard() {
+            const booked = (JSON.parse(localStorage.getItem('bookedSlots')) || []).length;
+            const occ = Math.floor(1300 * 0.35) + booked;
+            const pct = occ / 1300;
+            let advice = '';
+            if (pct < 0.35) advice = ' <b>Good conditions.</b> Plenty of Zone A slots. Now is a great time to park.';
+            else if (pct < 0.65) advice = ' <b>Moderate demand.</b> Zone B has the best availability. Book within 10 minutes.';
+            else advice = ' <b>High demand alert.</b> 80%+ full. Rooftop Zone C may be your best bet. Act fast!';
+            const aiEl = document.getElementById('aiCard');
+            if (aiEl) aiEl.innerHTML = advice;
+        }
+        function openParkmateAi() { window.location.href = 'parkmate-ai.html'; }
+        function aiQuery(t) { toggleChat(); setTimeout(() => sendChip(t === 'advice' ? 'Give me parking advice' : t === 'wallet' ? 'Wallet tips' : t === 'cheapest' ? 'What is the cheapest zone?' : 'Help'), 200); }
+
+        // 
+        //  TICKET
+        // 
+        let tickerInterval = null;
+        function renderTicket() {
+            const t = JSON.parse(localStorage.getItem('activeTicket'));
+            const banner = document.getElementById('ticketBanner');
+            if (!t) { if (banner) banner.style.display = 'none'; return; }
+            banner.style.display = 'block';
+            document.getElementById('tVeh').textContent = t.veh;
+            document.getElementById('tSlot').textContent = '#' + t.slot;
+            document.getElementById('tToken').textContent = t.token || t.pnr || '--';
+            document.getElementById('tTime').textContent = t.timeStr;
+            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent('TOKEN:' + t.token + '|VEH:' + t.veh + '|SLOT:' + t.slot);
+            document.getElementById('qrImg').src = qrUrl;
+            // Live timer
+            if (tickerInterval) clearInterval(tickerInterval);
+            tickerInterval = setInterval(() => {
+                const mins = Math.ceil((Date.now() - new Date(t.timestamp)) / 60000);
+                const bill = Math.max(20, mins * 2);
+                document.getElementById('tDur').textContent = mins + 'm';
+                document.getElementById('tBill').textContent = 'Rs ' + bill;
+                document.getElementById('timerTxt').textContent = mins + ' min active';
+            }, 15000);
+            const mins = Math.ceil((Date.now() - new Date(t.timestamp)) / 60000);
+            document.getElementById('tDur').textContent = mins + 'm';
+            document.getElementById('tBill').textContent = 'Rs ' + Math.max(20, mins * 2);
+            document.getElementById('timerTxt').textContent = mins + ' min active';
+        }
+        function showQR() {
+            const img = document.getElementById('qrImg').src;
+            Swal.fire({ title: 'Scan for Entry / Exit', imageUrl: img, imageWidth: 200, imageHeight: 200, confirmButtonColor: 'var(--primary)' });
+        }
+        function doExit() {
+            const t = JSON.parse(localStorage.getItem('activeTicket'));
+            if (!t) return;
+            const mins = Math.ceil((Date.now() - new Date(t.timestamp)) / 60000);
+            const bill = Math.max(20, mins * 2);
+            const ps = getPrimeState();
+            const cashback = ps.active ? Math.floor(bill * 0.2) : 0;
+            Swal.fire({
+                title: 'Exit & Pay',
+                html: `<div style="text-align:left;font-family:'DM Sans';font-size:0.9rem;line-height:2;">
+      <div><b>Token:</b> ${t.token || 'N/A'}</div>
+      <div><b>Duration:</b> ${mins} mins</div>
+      <div style="font-size:1.3rem;font-family:'Syne';font-weight:800;color:#1a56db;margin:8px 0;"><b>Rs ${bill}.00</b></div>
+            ${ps.active ? `<div style="color:#059669;"><b>Prime cashback:</b> Rs ${cashback}</div>` : ''}
+      <hr style="margin:10px 0;">
+      <div>Wallet: <b>Rs ${currentUser.balance.toFixed(2)}</b></div>
+      <div style="color:${currentUser.balance >= bill ? '#059669' : '#dc2626'};">${currentUser.balance >= bill ? ' Sufficient balance' : ' Insufficient balance'}</div>
+    </div>`,
+                icon: 'info', showCancelButton: true, confirmButtonText: 'Pay Rs ' + bill, confirmButtonColor: 'var(--primary)'
+            }).then(r => {
+                if (r.isConfirmed) {
+                    if (currentUser.balance >= bill) {
+                        currentUser.balance -= bill;
+                        if (cashback > 0) currentUser.balance += cashback;
+                        saveUser();
+                        updateWalletUI();
+                        renderPrimeMembershipCard();
+                        const rec = { token: t.token || t.pnr || 'UNKNOWN', plate: t.veh, slot: t.slot, amount: bill, time: new Date().toLocaleTimeString(), fullDate: new Date().toLocaleDateString(), status: currentUser.name, isReal: true };
+                        let ar = JSON.parse(localStorage.getItem('admin_records')) || []; ar.push(rec); localStorage.setItem('admin_records', JSON.stringify(ar));
+                        let rev = parseFloat(localStorage.getItem('admin_total_rev')) || 0; localStorage.setItem('admin_total_rev', rev + bill);
+                        let bs = JSON.parse(localStorage.getItem('bookedSlots')) || []; bs = bs.filter(id => id != t.slot); localStorage.setItem('bookedSlots', JSON.stringify(bs));
+                        localStorage.removeItem('activeTicket');
+                        Swal.fire('Payment Successful!', 'Gate is opening. Safe travels!', 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire({ title: 'Insufficient Funds', text: 'You need ' + (bill - currentUser.balance).toFixed(2) + ' more.', icon: 'error', confirmButtonText: 'Add Money Now' }).then(res => { if (res.isConfirmed) handleWallet(); });
+                    }
+                }
+            });
+        }
+
+        // 
+        //  HISTORY MODAL
+        // 
+        function openHistoryModal() {
+            const t = JSON.parse(localStorage.getItem('activeTicket'));
+            const apb = document.getElementById('activePassBox');
+            if (t) {
+                apb.innerHTML = `<div class="pass-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><span class="hist-badge badge-active"> ACTIVE</span><div style="font-family:'Syne';font-weight:700;font-size:1.1rem;margin-top:6px;">${t.veh}</div><div style="font-family:'JetBrains Mono';font-size:0.65rem;color:rgba(255,255,255,0.5);margin-top:3px;">Token: ${t.token || t.pnr}</div></div>
+        <div style="text-align:right;"><div style="font-family:'Syne';font-weight:800;font-size:2rem;color:var(--accent);">#${t.slot}</div><div style="font-size:0.72rem;color:rgba(255,255,255,0.4);">${t.timeStr}</div></div>
+      </div>
+    </div>`;
+            } else {
+                apb.innerHTML = '<div style="padding:14px;background:var(--surface3);border-radius:10px;font-size:0.82rem;color:var(--text3);text-align:center;">No active booking</div>';
+            }
+            const recs = (JSON.parse(localStorage.getItem('admin_records')) || []).filter(r => r.status === currentUser?.name && r.isReal);
+            const hl = document.getElementById('histList');
+            if (!recs.length) { hl.innerHTML = '<div style="text-align:center;color:var(--text3);padding:20px;font-size:0.82rem;">No trips yet. Book your first spot!</div>'; }
+            else { hl.innerHTML = recs.reverse().map(r => `<div class="hist-item"><div><span class="hist-badge badge-paid">PAID</span><div style="font-weight:600;font-size:0.88rem;margin-top:4px;">${r.plate} - Slot #${r.slot}</div><div style="font-size:0.72rem;color:var(--text3);">${r.fullDate || 'Today'} - ${r.time}</div></div><div style="font-family:'Syne';font-weight:700;color:var(--red);">Rs ${r.amount}</div></div>`).join(''); }
+            document.getElementById('histModal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('histModal').style.display = 'none'; }
+        window.addEventListener('click', e => { if (e.target === document.getElementById('histModal')) closeModal(); });
+
+        // 
+        //  TOAST
+        // 
+        function showToast(msg, type = 'ok') {
+            const c = document.getElementById('toasts');
+            const d = document.createElement('div'); d.className = 'toast ' + type;
+            const icons = { ok: 'check-circle', err: 'times-circle', inf: 'info-circle' };
+            d.innerHTML = `<i class="fas fa-${icons[type] || 'info-circle'}"></i>${msg}`;
+            c.appendChild(d);
+            setTimeout(() => { d.style.opacity = '0'; d.style.transition = '0.25s'; setTimeout(() => d.remove(), 250); }, 3000);
+        }
+
+        // 
+        //  CHAT ENGINE
+        // 
+        let chatOpen = false;
+        function chatGreet() {
+            const name = currentUser?.name?.split(' ')[0] || 'there';
+            addMsg(` Hi <b>${name}!</b> I'm ParkMind 3.0. Ask me anything about parking, rates, your wallet, or the best slot right now.`, 'bot');
+            // Show badge
+            document.getElementById('chatBadge').style.display = 'flex';
+        }
+        function toggleChat() {
+            chatOpen = !chatOpen;
+            const panel = document.getElementById('chatPanel');
+            panel.style.display = chatOpen ? 'flex' : 'none';
+            if (chatOpen) { document.getElementById('chatBadge').style.display = 'none'; document.getElementById('chatInput').focus(); }
+        }
+        function addMsg(txt, role) {
+            const c = document.getElementById('chatMsgs');
+            const d = document.createElement('div'); d.className = 'msg ' + role; d.innerHTML = txt; c.appendChild(d); c.scrollTop = c.scrollHeight;
+        }
+        function sendChip(txt) { document.getElementById('chatInput').value = txt; sendMsg(); }
+        function sendMsg() {
+            const inp = document.getElementById('chatInput');
+            const txt = inp.value.trim(); if (!txt) return;
+            addMsg(txt, 'user'); inp.value = '';
+            // typing
+            const tid = 't' + Date.now();
+            const c = document.getElementById('chatMsgs');
+            const td = document.createElement('div'); td.className = 'msg bot'; td.id = tid; td.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="font-size:0.75rem;"></i>';
+            c.appendChild(td); c.scrollTop = c.scrollHeight;
+            setTimeout(() => { const r = genReply(txt); document.getElementById(tid).innerHTML = r; c.scrollTop = c.scrollHeight; }, 550);
+        }
+
+        //  NEURAL-INSPIRED CHATBOT 
+        function genReply(input) {
+            const txt = input.toLowerCase();
+            const user = currentUser;
+            const booked = (JSON.parse(localStorage.getItem('bookedSlots')) || []).length;
+            const occ = Math.floor(1300 * 0.35) + booked;
+            const pct = (occ / 1300 * 100);
+            const records = (JSON.parse(localStorage.getItem('admin_records')) || []);
+
+            // ALGORITHM 1: Fuzzy Demand Classification
+            function fuzzyDemand() {
+                if (pct < 35) return { level: 'LOW', color: '#059669', advice: 'Plenty of spots. Zone A recommended.' };
+                if (pct < 65) return { level: 'MODERATE', color: '#d97706', advice: 'Demand rising. Book within 10 minutes for best slots.' };
+                return { level: 'HIGH', color: '#dc2626', advice: '90%+ full. Book NOW or try Zone C rooftop.' };
+            }
+
+            // ALGORITHM 2: Bayesian Wallet Estimator
+            function walletEstimate() {
+                if (!user) return '';
+                const bal = user.balance;
+                const avgPark = records.filter(r => r.isReal && r.status === user.name).reduce((a, r, _, arr) => a + (r.amount / arr.length), 0) || 40;
+                const sessions = Math.floor(bal / avgPark);
+                return { bal: bal.toFixed(2), sessions, avgPark: avgPark.toFixed(0) };
+            }
+
+            // ALGORITHM 3: Linear Regression Price Forecast
+            function priceForecast() {
+                if (records.length < 5) return null;
+                const n = records.length;
+                let sx = 0, sy = 0, sxy = 0, sxx = 0;
+                records.forEach((r, i) => { sx += i; sy += r.amount; sxy += i * r.amount; sxx += i * i; });
+                const m = (n * sxy - sx * sy) / ((n * sxx - sx * sx) || 1);
+                const b = (sy - m * sx) / n;
+                return Math.max(0, m * (n + 10) + b);
+            }
+
+            // ALGORITHM 4: Zone Recommendation Engine (scoring)
+            function bestZone() {
+                const scores = { A: 100 - pct * 0.5, B: 80 - pct * 0.3, C: 70 + pct * 0.2 };
+                const best = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
+                return best[0];
+            }
+
+            // ALGORITHM 5: K-Means-like Time Clustering
+            function peakTime() {
+                const h = new Date().getHours();
+                if (h >= 7 && h <= 9 || h >= 17 && h <= 20) return 'PEAK HOURS';
+                if (h >= 10 && h <= 16) return 'MID HOURS';
+                return 'OFF-PEAK';
+            }
+
+            //  INTENT MATCHING 
+            if (/(hi|hello|hey|start)/.test(txt)) {
+                const d = fuzzyDemand(); return ` Hi! Current occupancy is <b>${pct.toFixed(0)}%</b>. Demand is <span style="color:${d.color}"><b>${d.level}</b></span>. ${d.advice}`;
+            }
+            if (/(advice|status|should i|recommend)/.test(txt)) {
+                const d = fuzzyDemand(); const z = bestZone(); const t = peakTime();
+                return ` <b>ParkMind Analysis:</b><br>
+       Occupancy: <b>${pct.toFixed(1)}%</b><br>
+       Demand: <span style="color:${d.color};"><b>${d.level}</b></span><br>
+       Time Cluster: <b>${t}</b><br>
+       Best Zone: <b>Zone ${z}</b><br>
+       Advice: ${d.advice}`;
+            }
+            if (/(wallet|balance|money|funds)/.test(txt)) {
+                if (!user) return 'Please sign in to check your wallet.';
+                const w = walletEstimate();
+                return ` Your balance is <b>Rs ${w.bal}</b>. Based on your history (avg Rs ${w.avgPark}/session), you have approx. <b>${w.sessions} sessions</b> left.`;
+            }
+            if (/(rate|price|cost|cheap|rupee)/.test(txt)) {
+                const f = priceForecast();
+                return ` <b>Current Rates:</b><br> Zone A: Rs 20/hr<br> Zone B: Rs 15/hr (cheapest!)<br> Zone C: Rs 25/hr<br> EV Bay: Rs 30/hr${f ? `<br><br> AI forecasts next avg transaction at ~Rs ${f.toFixed(0)}` : ''}`;
+            }
+            if (/(cheapest|cheap|save|economy)/.test(txt)) {
+                return ` Cheapest option is <b>Zone B (Basement)</b> at Rs 15/hr. It currently has ~<b>${Math.floor((1300 - occ) * 0.35)}</b> free slots.`;
+            }
+            if (/(best|recommend|zone|where)/.test(txt)) {
+                const z = bestZone(); return ` Our AI scores suggest <b>Zone ${z}</b> as the best right now based on demand, availability, and pricing.`;
+            }
+            if (/(peak|busy|traffic|time)/.test(txt)) {
+                const t = peakTime(); const h = new Date().getHours();
+                return ` It's currently <b>${t}</b> (${String(h).padStart(2, '0')}:00). ${t === 'PEAK HOURS' ? 'Expect slow entry. EV bays may be full.' : t === 'MID HOURS' ? 'Moderate traffic. Most zones accessible.' : 'Great time to park! Minimal wait.'}`;
+            }
+            if (/(ticket|booking|slot|active)/.test(txt)) {
+                const at = JSON.parse(localStorage.getItem('activeTicket'));
+                return at ? ` Active booking found! Slot <b>#${at.slot}</b>, Vehicle <b>${at.veh}</b>. Use the Exit button to check out.` : `No active booking. <a href="parking.html" style="color:var(--primary);">Click here to book a slot</a>.`;
+            }
+            if (/(ev|electric|charge|charging)/.test(txt)) {
+                return ` We have <b>24 EV charging bays</b> spread across all zones. Rate: Rs 30/hr includes AC fast-charging. Currently all 24 are operational.`;
+            }
+            if (/(help|support|contact)/.test(txt)) {
+                return ` Need help? For support, visit the Help section in the footer. For emergencies, call the parking office intercom at any level.`;
+            }
+            // default
+            return ` I didn't quite catch that. Try asking: <br> <span style="color:var(--primary);cursor:pointer;" onclick="sendChip('Give me parking advice')">Parking advice</span><br> <span style="color:var(--primary);cursor:pointer;" onclick="sendChip('What are the rates?')">Rates & pricing</span><br> <span style="color:var(--primary);cursor:pointer;" onclick="sendChip('Best zone to park?')">Best zone</span>`;
+        }
+
+        // 
+        //  SEARCH (basic)
+        // 
+        function onSearch() {
+            const q = document.getElementById('globalSearch').value.toLowerCase().trim();
+            if (!q) return;
+            const hints = { slot: 'Try booking a slot at parking.html', zone: 'Zones: A (Ground), B (Basement), C (Rooftop)', rate: 'Rates from Rs 15/hr to Rs 30/hr', ev: 'EV bays available at Zone B & C', exit: 'Use the Exit & Pay button on your active ticket' };
+            for (const [k, v] of Object.entries(hints)) { if (q.includes(k)) { showToast(v, 'inf'); return; } }
+        }
+
+
+        // =============================================
+        //  SCROLL PROGRESS BAR
+        // =============================================
+        (function () {
+            const prog = document.getElementById('scrollProgress');
+            if (!prog) return;
+            window.addEventListener('scroll', () => {
+                const total = document.body.scrollHeight - window.innerHeight;
+                const pct = total > 0 ? (window.scrollY / total) * 100 : 0;
+                prog.style.width = pct + '%';
+            }, { passive: true });
+        })();
+
+        // =============================================
+        //  MOBILE SEARCH OVERLAY
+        // =============================================
+        function openMobileSearch() {
+            const ov = document.getElementById('mobileSearchOverlay');
+            if (ov) {
+                ov.classList.add('open');
+                setTimeout(() => document.getElementById('mobileSearchInput')?.focus(), 100);
+            }
+        }
+        function closeMobileSearch() {
+            const ov = document.getElementById('mobileSearchOverlay');
+            if (ov) ov.classList.remove('open');
+        }
+        function onMobileSearch() {
+            const val = document.getElementById('mobileSearchInput')?.value;
+            if (val) {
+                document.getElementById('globalSearch').value = val;
+                onSearch();
+            }
+        }
+        // Show mobile search btn on small screens, hide desktop search
+        function updateNavForMobile() {
+            const isMobile = window.innerWidth <= 768;
+            const searchBtn = document.getElementById('mobileSearchBtn');
+            const hamburger = document.getElementById('hamburgerBtn');
+            const navSearch = document.getElementById('navSearch');
+            const navTools = document.getElementById('navTools');
+            const navAuthBtn = document.getElementById('navAuthBtn');
+
+            if (isMobile) {
+                // Always show hamburger + search icon on mobile
+                if (hamburger) hamburger.style.display = 'flex';
+                if (searchBtn) searchBtn.style.display = 'flex';
+                // Hide desktop-only items
+                if (navSearch) navSearch.style.display = 'none';
+                if (navTools) navTools.style.display = 'none';
+                if (navAuthBtn) navAuthBtn.style.display = 'none';
+            } else {
+                // Desktop: hide mobile buttons
+                if (hamburger) hamburger.style.display = 'none';
+                if (searchBtn) searchBtn.style.display = 'none';
+                closeDrawer();
+                // Restore desktop items based on auth state
+                if (currentUser) {
+                    if (navSearch) navSearch.style.display = 'flex';
+                    if (navTools) navTools.style.display = 'flex';
+                    if (navAuthBtn) navAuthBtn.style.display = 'none';
+                } else {
+                    if (navSearch) navSearch.style.display = 'none';
+                    if (navTools) navTools.style.display = 'none';
+                    if (navAuthBtn) navAuthBtn.style.display = 'flex';
+                }
+            }
+        }
+        window.addEventListener('resize', updateNavForMobile);
+
+        // =============================================
+        //  SWIPE SUPPORT FOR SLIDER
+        // =============================================
+        (function () {
+            const sw = document.querySelector('.slider-wrap');
+            if (!sw) return;
+            let startX = 0, startY = 0, isDragging = false;
+            sw.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                isDragging = true;
+            }, { passive: true });
+            sw.addEventListener('touchend', e => {
+                if (!isDragging) return;
+                isDragging = false;
+                const dx = e.changedTouches[0].clientX - startX;
+                const dy = e.changedTouches[0].clientY - startY;
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+                    slideMove(dx < 0 ? 1 : -1);
+                }
+            }, { passive: true });
+        })();
+
+        // ULTRA QUANTUM ROUTE LAB
+        (function initUltraLab() {
+            const box = document.getElementById('ultraLab');
+            if (!box) return;
+
+            const el = {
+                demand: document.getElementById('uDemand'),
+                rain: document.getElementById('uRain'),
+                event: document.getElementById('uEvent'),
+                demandVal: document.getElementById('uDemandVal'),
+                rainVal: document.getElementById('uRainVal'),
+                eventVal: document.getElementById('uEventVal'),
+                flux: document.getElementById('uFlux'),
+                swarm: document.getElementById('uSwarm'),
+                fractal: document.getElementById('uFractal'),
+                path: document.getElementById('uPath'),
+                field: document.getElementById('ultraField'),
+                recompute: document.getElementById('uRecompute'),
+                auto: document.getElementById('uAutoPulse'),
+                cmd: document.getElementById('uCmd')
+            };
+
+            let autoPulse = true;
+            let pulseTimer = null;
+            const ctx = el.field.getContext('2d');
+            const particles = Array.from({ length: 72 }, (_, i) => ({
+                x: Math.random() * el.field.width,
+                y: Math.random() * el.field.height,
+                vx: (Math.random() - 0.5) * 1.3,
+                vy: (Math.random() - 0.5) * 1.3,
+                t: i * 0.23
+            }));
+
+            function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+            function sigmoid(x) { return 1 / (1 + Math.exp(-x)); }
+            function noiseMix(a, b, c) { return (Math.sin(a * 0.11) + Math.cos(b * 0.09) + Math.sin(c * 0.17)) * 8; }
+
+            function computeModel() {
+                const demand = +el.demand.value;
+                const rain = +el.rain.value;
+                const event = +el.event.value;
+
+                el.demandVal.textContent = demand;
+                el.rainVal.textContent = rain;
+                el.eventVal.textContent = event;
+
+                const flux = sigmoid((demand * 1.42 + rain * 0.84 + event * 1.75 - 122) / 18) * 100;
+                const swarm = clamp(100 - (rain * 0.55) - (event * 0.15) + noiseMix(demand, rain, event), 1, 99);
+                const fractal = clamp((demand * 0.6 + rain * 0.92 + event * 0.73) - noiseMix(rain, event, demand), 3, 180);
+
+                const routes = [
+                    { name: 'Aerial Spiral Ingress', cost: 0.9 * demand + 0.3 * rain + 0.7 * event + (100 - swarm) },
+                    { name: 'Helix Basement Sweep', cost: 0.7 * demand + 1.1 * rain + 0.52 * event + (fractal * 0.5) },
+                    { name: 'Quantum Rooftop Arc', cost: 0.5 * demand + 0.2 * rain + 1.2 * event + (100 - flux) },
+                    { name: 'Adaptive Lane-Shift Mesh', cost: 0.8 * demand + 0.62 * rain + 0.61 * event + Math.abs(50 - swarm) }
+                ];
+                routes.sort((a, b) => a.cost - b.cost);
+                const best = routes[0];
+                const eta = clamp(Math.round(3 + best.cost / 22), 3, 17);
+                const confidence = clamp(Math.round(96 - best.cost / 4), 42, 98);
+
+                el.flux.textContent = flux.toFixed(1) + '%';
+                el.swarm.textContent = swarm.toFixed(1) + '%';
+                el.fractal.textContent = fractal.toFixed(1);
+                el.path.innerHTML = `<b>Recommended Path:</b> ${best.name}<br><b>Predicted ETA:</b> ${eta} min | <b>Solver Confidence:</b> ${confidence}%`;
+                return { demand, rain, event };
+            }
+
+            function runCommand(raw) {
+                const txt = raw.toLowerCase().trim();
+                if (!txt) return;
+                if (txt.includes('boost demand')) el.demand.value = clamp(+el.demand.value + 18, 0, 100);
+                if (txt.includes('monsoon')) el.rain.value = clamp(+el.rain.value + 28, 0, 100);
+                if (txt.includes('event spike')) el.event.value = clamp(+el.event.value + 30, 0, 100);
+                if (txt.includes('reset')) { el.demand.value = 56; el.rain.value = 22; el.event.value = 38; }
+                computeModel();
+            }
+
+            function drawFrame() {
+                const demand = +el.demand.value;
+                const rain = +el.rain.value;
+                const event = +el.event.value;
+                const t = performance.now() * 0.0012;
+
+                const grad = ctx.createLinearGradient(0, 0, el.field.width, el.field.height);
+                grad.addColorStop(0, `rgba(${20 + rain}, ${36 + demand * 0.2}, 80, 0.45)`);
+                grad.addColorStop(1, `rgba(14, 24, ${80 + event}, 0.52)`);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, el.field.width, el.field.height);
+
+                particles.forEach((p, i) => {
+                    p.t += 0.013 + demand * 0.00008;
+                    p.vx += Math.sin(p.t + i * 0.1) * 0.02 - p.x * 0.0000015;
+                    p.vy += Math.cos(p.t * 1.4 + event * 0.03) * 0.02 - p.y * 0.0000015;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0 || p.x > el.field.width) p.vx *= -0.98;
+                    if (p.y < 0 || p.y > el.field.height) p.vy *= -0.98;
+                    p.x = clamp(p.x, 0, el.field.width);
+                    p.y = clamp(p.y, 0, el.field.height);
+
+                    const r = 1.1 + ((i + demand) % 4) * 0.33;
+                    const alpha = 0.24 + Math.sin(t + i * 0.24) * 0.15;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${120 + event},${170 + rain * 0.4},255,${alpha})`;
+                    ctx.fill();
+                });
+
+                for (let i = 0; i < particles.length; i += 3) {
+                    const a = particles[i];
+                    const b = particles[(i + 11) % particles.length];
+                    const dist = Math.hypot(a.x - b.x, a.y - b.y);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.strokeStyle = `rgba(126,176,255,${(1 - dist / 120) * 0.22})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+                requestAnimationFrame(drawFrame);
+            }
+
+            [el.demand, el.rain, el.event].forEach(inp => inp.addEventListener('input', computeModel));
+            el.recompute.addEventListener('click', computeModel);
+            el.auto.addEventListener('click', () => {
+                autoPulse = !autoPulse;
+                el.auto.innerHTML = autoPulse ? '<i class="fas fa-wave-square"></i> Toggle Auto Pulse' : '<i class="fas fa-pause"></i> Auto Pulse Paused';
+                if (autoPulse) startPulse();
+                else if (pulseTimer) clearInterval(pulseTimer);
+            });
+            el.cmd.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    runCommand(el.cmd.value);
+                    el.cmd.value = '';
+                }
+            });
+
+            function startPulse() {
+                if (pulseTimer) clearInterval(pulseTimer);
+                pulseTimer = setInterval(() => {
+                    if (!autoPulse) return;
+                    const drift = (Math.random() * 8) - 4;
+                    el.demand.value = clamp(+el.demand.value + drift, 0, 100);
+                    el.rain.value = clamp(+el.rain.value + ((Math.random() * 6) - 3), 0, 100);
+                    el.event.value = clamp(+el.event.value + ((Math.random() * 5) - 2.5), 0, 100);
+                    computeModel();
+                }, 1200);
+            }
+
+            computeModel();
+            startPulse();
+            drawFrame();
+        })();
+    </script>
+</body>
+
+</html>
